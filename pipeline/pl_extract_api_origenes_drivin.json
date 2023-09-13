@@ -1,0 +1,684 @@
+{
+	"name": "pl_extract_api_origenes_drivin",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable DRIVIN",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/pods?start_date=',pipeline().parameters.par_stardate,'&end_date=',pipeline().parameters.par_enddate)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "POST",
+						"requestBody": "{}",
+						"additionalHeaders": {
+							"Content-type": {
+								"value": "@pipeline().parameters.par_header_content_type",
+								"type": "Expression"
+							},
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'DRIVIN')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable DRIVIN Vehicles",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv_vehiculos",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/vehicles')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn Vehicles",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN Vehicles",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv_vehiculos')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_VEHICLES',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'VEHICLES')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable DRIVIN Esquemas",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv_esquemas",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/schemas')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn Esquemas",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN Esquemas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv_esquemas')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_ESQUEMAS_',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'ESQUEMAS')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable DRIVIN Grupos Vehicles",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv_grupo_vehiculos",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/vehicles')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn Grupo Vehicles",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN Grupos Vehicles",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv_grupo_vehiculos')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_GRUPO_VEHICLES_',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'GRUPO_VEHICLES')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable DRIVIN Direccion",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv_direccion",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/addresses')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn Grupo Direccion",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN Direccion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv_direccion')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_DIRECCIONES_',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'DIRECCIONES')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set variable DRIVIN Clientes",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_driv_clientes",
+					"value": {
+						"value": "@concat(pipeline().parameters.par_url,'api/external/v2/v2/clients')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy DrivIn Clientes",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable DRIVIN Clientes",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "POST",
+						"requestBody": "{}",
+						"additionalHeaders": {
+							"Content-type": {
+								"value": "@pipeline().parameters.par_header_content_type",
+								"type": "Expression"
+							},
+							"X-API-Key": {
+								"value": "@pipeline().parameters.par_header_key",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ar_rest_api_generic_auth",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_url_complete": {
+								"value": "@variables('var_driv_clientes')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "json_api_web",
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": {
+								"value": "@concat(pipeline().parameters.FileName,'_DRIVIN_CLIENTES_',variables('var_set_fecha_hoy'),'.json')",
+								"type": "Expression"
+							},
+							"ContName": {
+								"value": "@pipeline().parameters.par_cont",
+								"type": "Expression"
+							},
+							"FoldPath": {
+								"value": "@concat(pipeline().parameters.par_folder,'CLIENTES')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"par_url": {
+				"type": "string",
+				"defaultValue": "https://external.driv.in/"
+			},
+			"par_stardate": {
+				"type": "string"
+			},
+			"par_enddate": {
+				"type": "string"
+			},
+			"par_header_content_type": {
+				"type": "string",
+				"defaultValue": "application/json"
+			},
+			"par_header_key": {
+				"type": "string"
+			},
+			"FileName": {
+				"type": "string",
+				"defaultValue": "JSON"
+			},
+			"par_cont": {
+				"type": "string",
+				"defaultValue": "dev"
+			},
+			"par_folder": {
+				"type": "string",
+				"defaultValue": "/inbound/ext_api_files_new/DRIVIN/"
+			},
+			"par_url_login": {
+				"type": "string",
+				"defaultValue": "https://central.cevisur.com.mx:8443/nestle/api/auth/login"
+			}
+		},
+		"variables": {
+			"var_riv_ventas": {
+				"type": "String"
+			},
+			"var_nie_ventas": {
+				"type": "String"
+			},
+			"var_driv": {
+				"type": "String"
+			},
+			"var_supplier": {
+				"type": "String"
+			},
+			"var_cevi_login": {
+				"type": "String"
+			},
+			"var_cevi_ventas": {
+				"type": "String"
+			},
+			"var_cevi_inventario": {
+				"type": "String"
+			},
+			"var_cevi_clientes": {
+				"type": "String"
+			},
+			"var_cevi_produtos": {
+				"type": "String"
+			},
+			"var_riv_inventario": {
+				"type": "String"
+			},
+			"var_nie_inventarios": {
+				"type": "String"
+			},
+			"var_nie_clientes": {
+				"type": "String"
+			},
+			"var_nie_productos": {
+				"type": "String"
+			},
+			"var_set_fecha_hoy": {
+				"type": "String"
+			},
+			"var_cevi_facturas": {
+				"type": "String"
+			},
+			"var_url_default": {
+				"type": "String"
+			},
+			"var_driv_direccion": {
+				"type": "String"
+			},
+			"var_driv_rutas": {
+				"type": "String"
+			},
+			"var_driv_vehiculos": {
+				"type": "String"
+			},
+			"var_driv_grupo_vehiculos": {
+				"type": "String"
+			},
+			"var_driv_esquemas": {
+				"type": "String"
+			},
+			"var_driv_clientes": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes/Utils/API_Web"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

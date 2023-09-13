@@ -1,0 +1,25 @@
+{
+	"name": "SourceDataSetProductos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Sftp1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "mayoreodigital"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": {
+					"value": "@concat('Productos_',formatDateTime(getPastTime(5, 'Day'),'yyyy'),formatDateTime(getPastTime(2, 'Month'),'MM'),formatDateTime(getPastTime(20, 'Day'),'dd'),'.DAT')",
+					"type": "Expression"
+				},
+				"folderPath": "/Entrada"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

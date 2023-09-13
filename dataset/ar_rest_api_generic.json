@@ -1,0 +1,33 @@
+{
+	"name": "ar_rest_api_generic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ar_rest_api_generic",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"par_url": {
+					"value": "@dataset().par_url",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"QueryParameters": {
+				"type": "string"
+			},
+			"par_url": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@dataset().QueryParameters",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

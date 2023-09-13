@@ -1,0 +1,524 @@
+{
+	"name": "pl_00_BSG",
+	"properties": {
+		"activities": [
+			{
+				"name": "Execute silver condition",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set uploaded files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(greater(int(variables('UploadedFiles')), 0), greater(indexof(pipeline().parameters.par_TypeBSG, 'S'), 0))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Silver Execution",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "Set retailer list",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_02_silver_layer",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_IdClient": {
+										"value": "@pipeline().parameters.par_IdClient",
+										"type": "Expression"
+									},
+									"par_IdRetailer": {
+										"value": "@variables('RetailerList')",
+										"type": "Expression"
+									},
+									"par_IdLog": {
+										"value": "@pipeline().parameters.par_IdLog",
+										"type": "Expression"
+									},
+									"par_MailList": {
+										"value": "@pipeline().parameters.par_MailList",
+										"type": "Expression"
+									},
+									"par_User": {
+										"value": "@pipeline().parameters.par_User",
+										"type": "Expression"
+									},
+									"par_ComplementLoad": {
+										"value": "@pipeline().parameters.par_ComplementLoad",
+										"type": "Expression"
+									},
+									"par_GroupedType": {
+										"value": "@pipeline().parameters.par_GroupedType",
+										"type": "Expression"
+									},
+									"par_RetailerName": {
+										"value": "@pipeline().parameters.par_RetailerName",
+										"type": "Expression"
+									},
+									"par_IsATM": {
+										"value": "@pipeline().parameters.par_IsATM",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Get temp data",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Repos/Production/DatabricksMX/sv_utilities/500_get_temp_values",
+								"baseParameters": {
+									"par_IdCustomer": {
+										"value": "@pipeline().parameters.par_IdClient",
+										"type": "Expression"
+									},
+									"par_IdRetailer": {
+										"value": "@pipeline().parameters.par_IdRetailer",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Set range dates",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Get temp data",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "RangeDates",
+								"value": {
+									"value": "@activity('Get temp data').output.runOutput.rangeDates",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set dynamic information type list",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set range dates",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "DynamicInformationTypeList",
+								"value": {
+									"value": "@activity('Get temp data').output.runOutput.dynamicInformationTypeList",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set retailer list",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Set dynamic information type list",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "RetailerList",
+								"value": {
+									"value": "@if(equals(coalesce(pipeline().parameters.par_IdRetailer, ''), ''), activity('Get temp data').output.runOutput.retailerList, pipeline().parameters.par_IdRetailer)",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Execute gold condition",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Execute silver condition",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(and(greater(int(variables('UploadedFiles')), 0), greater(indexof(pipeline().parameters.par_TypeBSG, 'G'), 0)), not(equals(variables('RangeDates'), '')))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Gold Execution",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_03_gold_layer",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_IdClient": {
+										"value": "@pipeline().parameters.par_IdClient",
+										"type": "Expression"
+									},
+									"par_IdRetailer": {
+										"value": "@variables('RetailerList')",
+										"type": "Expression"
+									},
+									"par_IdLog": {
+										"value": "@pipeline().parameters.par_IdLog",
+										"type": "Expression"
+									},
+									"par_MailList": {
+										"value": "@pipeline().parameters.par_MailList",
+										"type": "Expression"
+									},
+									"par_DateList": {
+										"value": "@variables('RangeDates')",
+										"type": "Expression"
+									},
+									"par_Dashboards": {
+										"value": "@pipeline().parameters.par_Dashboards",
+										"type": "Expression"
+									},
+									"par_User": {
+										"value": "@pipeline().parameters.par_User",
+										"type": "Expression"
+									},
+									"par_RetailerName": {
+										"value": "@pipeline().parameters.par_RetailerName",
+										"type": "Expression"
+									},
+									"par_IsATM": {
+										"value": "@pipeline().parameters.par_IsATM",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Execute datasets custom views",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Execute gold condition",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(and(greater(int(variables('UploadedFiles')), 0), greater(indexof(pipeline().parameters.par_TypeBSG, 'D'), 0)), not(equals(coalesce(pipeline().parameters.par_CustomViewsList, ''), '')))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Datasets Custom Views",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_04_create_datasets",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_IdClient": {
+										"value": "@pipeline().parameters.par_IdClient",
+										"type": "Expression"
+									},
+									"par_IdLog": {
+										"value": "@pipeline().parameters.par_IdLog",
+										"type": "Expression"
+									},
+									"par_MailList": {
+										"value": "@pipeline().parameters.par_MailList",
+										"type": "Expression"
+									},
+									"par_User": {
+										"value": "@pipeline().parameters.par_User",
+										"type": "Expression"
+									},
+									"par_DynamicInformationTypesList": {
+										"value": "@coalesce('')",
+										"type": "Expression"
+									},
+									"par_SqlViewsList": {
+										"value": "@coalesce('')",
+										"type": "Expression"
+									},
+									"par_CustomViewsList": {
+										"value": "@pipeline().parameters.par_CustomViewsList",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set uploaded files",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Load data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "UploadedFiles",
+					"value": {
+						"value": "@string(activity('load data').output.runOutput.uploadedFiles)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load data",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sl_siweb/execution/108_load_data",
+					"baseParameters": {
+						"par_IdClient": {
+							"value": "@pipeline().parameters.par_IdClient",
+							"type": "Expression"
+						},
+						"par_IdRetailer": {
+							"value": "@pipeline().parameters.par_IdRetailer",
+							"type": "Expression"
+						},
+						"par_IdType": {
+							"value": "@pipeline().parameters.par_TypeBSG",
+							"type": "Expression"
+						},
+						"par_IdLog": {
+							"value": "@pipeline().parameters.par_IdLog",
+							"type": "Expression"
+						},
+						"par_MailList": {
+							"value": "@pipeline().parameters.par_MailList",
+							"type": "Expression"
+						},
+						"par_User": {
+							"value": "@pipeline().parameters.par_User",
+							"type": "Expression"
+						},
+						"par_RetailerName": {
+							"value": "@pipeline().parameters.par_RetailerName",
+							"type": "Expression"
+						},
+						"par_IsATM": {
+							"value": "@pipeline().parameters.par_IsATM",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Execute datasets dynamic info type views",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Execute gold condition",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@and(and(greater(int(variables('UploadedFiles')), 0), greater(indexof(pipeline().parameters.par_TypeBSG, 'D'), 0)), not(equals(coalesce(variables('DynamicInformationTypeList'), ''), '')))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Datasets Dynamic Information Types",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_04_create_datasets",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_IdClient": {
+										"value": "@pipeline().parameters.par_IdClient",
+										"type": "Expression"
+									},
+									"par_IdLog": {
+										"value": "@pipeline().parameters.par_IdLog",
+										"type": "Expression"
+									},
+									"par_MailList": {
+										"value": "@pipeline().parameters.par_MailList",
+										"type": "Expression"
+									},
+									"par_User": {
+										"value": "@pipeline().parameters.par_User",
+										"type": "Expression"
+									},
+									"par_DynamicInformationTypesList": {
+										"value": "@variables('DynamicInformationTypeList')",
+										"type": "Expression"
+									},
+									"par_SqlViewsList": {
+										"value": "@coalesce('')",
+										"type": "Expression"
+									},
+									"par_CustomViewsList": {
+										"value": "@coalesce('')",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_IdClient": {
+				"type": "string"
+			},
+			"par_IdRetailer": {
+				"type": "string"
+			},
+			"par_TypeBSG": {
+				"type": "string"
+			},
+			"par_IdLog": {
+				"type": "string"
+			},
+			"par_MailList": {
+				"type": "string"
+			},
+			"par_User": {
+				"type": "string"
+			},
+			"par_RetailerName": {
+				"type": "string"
+			},
+			"par_IsATM": {
+				"type": "string"
+			},
+			"par_ComplementLoad": {
+				"type": "string"
+			},
+			"par_GroupedType": {
+				"type": "string"
+			},
+			"par_Dashboards": {
+				"type": "string"
+			},
+			"par_CustomViewsList": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"RangeDates": {
+				"type": "String"
+			},
+			"UploadedFiles": {
+				"type": "String"
+			},
+			"DynamicInformationTypeList": {
+				"type": "String"
+			},
+			"RetailerList": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "Siweb"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

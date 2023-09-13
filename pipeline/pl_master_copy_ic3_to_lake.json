@@ -1,0 +1,66 @@
+{
+	"name": "pl_master_copy_ic3_to_lake",
+	"properties": {
+		"activities": [
+			{
+				"name": "pl_extract_p_ic3",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_extract_p_ic3",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_logical_p_ic3",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_extract_p_ic3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_logical_p_ic3",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_load_p_ic3",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_logical_p_ic3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_load_p_ic3",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_finance_creditnotes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

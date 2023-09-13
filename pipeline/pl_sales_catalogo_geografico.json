@@ -1,0 +1,60 @@
+{
+	"name": "pl_sales_catalogo_geografico",
+	"properties": {
+		"activities": [
+			{
+				"name": "Extract_Cat_Geo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_catalogos/geo/execution/0010.Import_Cat_Geo"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Transform_Cat_Geo",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract_Cat_Geo",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_catalogos/geo/execution/0011.Transform_Cat_Geo"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_ventas_test"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

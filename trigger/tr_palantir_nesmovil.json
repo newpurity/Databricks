@@ -1,0 +1,35 @@
+{
+	"name": "tr_palantir_nesmovil",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_datasets",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"Area": "Nesmovil"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-21T19:00:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						8
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,31 @@
+{
+	"name": "trigger_tipificacion_mx",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_copy_tipification_to_lake",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-01-10T00:00:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"hours": [
+						9,
+						12,
+						15
+					]
+				}
+			}
+		}
+	}
+}

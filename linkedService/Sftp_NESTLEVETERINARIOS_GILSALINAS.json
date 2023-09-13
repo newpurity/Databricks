@@ -1,0 +1,16 @@
+{
+	"name": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Sftp",
+		"typeProperties": {
+			"host": "148.244.86.195",
+			"port": 22,
+			"skipHostKeyValidation": true,
+			"authenticationType": "Basic",
+			"userName": "sftpgarcevet",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEY2Nzk5MjdGLTJGNkYtNEYyMy04NjZDLUFGQ0RGRDc3M0YzOF8wZDVmNDdjYy00ZGMyLTRlYzYtYTI4OS02ZTVkZWRhZWE1MmQiDQp9"
+		}
+	}
+}

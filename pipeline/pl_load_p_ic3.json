@@ -1,0 +1,60 @@
+{
+	"name": "pl_load_p_ic3",
+	"properties": {
+		"activities": [
+			{
+				"name": "Carga Dataset IC3",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/rafael.medeiros2@br.nestle.com/sl_creditnotes_tipification/05_dataset_ic3"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Model Classification",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Carga Dataset IC3",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/carlos.grajales@mx.nestle.com/finance_creditnotes_classification"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_finance_creditnotes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

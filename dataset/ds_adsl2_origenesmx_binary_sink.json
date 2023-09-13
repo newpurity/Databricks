@@ -1,0 +1,33 @@
+{
+	"name": "ds_adsl2_origenesmx_binary_sink",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_origenesmx",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"parContName": {
+				"type": "string"
+			},
+			"parPathDestination": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().parPathDestination",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().parContName",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

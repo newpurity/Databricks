@@ -1,0 +1,29 @@
+{
+	"name": "tr_amsmx_load_sales",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_load_sales",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"par_blob_path": "@triggerBody().folderPath",
+					"par_blob_filename": "@triggerBody().fileName"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/datascience/blobs/datastore/sales/",
+			"blobPathEndsWith": ".csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

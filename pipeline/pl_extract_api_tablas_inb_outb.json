@@ -1,0 +1,5850 @@
+{
+	"name": "pl_extract_api_tablas_inb_outb",
+	"properties": {
+		"activities": [
+			{
+				"name": "Date UTC",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Fecha Ayer 00",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_final_date",
+					"value": {
+						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),'yyyy-MM-dd hh:mm')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Date",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Date UTC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "date_ext",
+					"value": {
+						"value": "@formatDateTime(pipeline().TriggerTime,'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "web api auth",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set Date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.par_url",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"body": {
+						"value": "{\n    \n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Switch1",
+				"type": "Switch",
+				"dependsOn": [
+					{
+						"activity": "web api auth",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.par_tabla",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "OUTBOUND_LIVE",
+							"activities": [
+								{
+									"name": "api_web API FECHA_EN_PLAN_COPY_01",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_01",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['truck']['eco']"
+													},
+													"sink": {
+														"name": "truck_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['unity']"
+													},
+													"sink": {
+														"name": "unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['type_unity']"
+													},
+													"sink": {
+														"name": "type_unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['ARRIVE_SOURCE_TRUCK']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRUCK",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['box']"
+													},
+													"sink": {
+														"name": "box",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['note']"
+													},
+													"sink": {
+														"name": "note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['notes']"
+													},
+													"sink": {
+														"name": "source_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRUCK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRUCK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRAILER']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRAILER_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['notes']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['driver_exit']"
+													},
+													"sink": {
+														"name": "source_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal']"
+													},
+													"sink": {
+														"name": "seal",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['layout']"
+													},
+													"sink": {
+														"name": "layout",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal_type']"
+													},
+													"sink": {
+														"name": "seal_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['box_picking']"
+													},
+													"sink": {
+														"name": "box_picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_chep']"
+													},
+													"sink": {
+														"name": "platform_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_white']"
+													},
+													"sink": {
+														"name": "platform_white",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['warehouse_note']"
+													},
+													"sink": {
+														"name": "warehouse_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['is_committee_priority']"
+													},
+													"sink": {
+														"name": "is_committee_priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['date_invoice']"
+													},
+													"sink": {
+														"name": "date_invoice",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['convenio_chep']"
+													},
+													"sink": {
+														"name": "convenio_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['main_location']"
+													},
+													"sink": {
+														"name": "main_location",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['with_document']"
+													},
+													"sink": {
+														"name": "with_document",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['valuation_note']"
+													},
+													"sink": {
+														"name": "valuation_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['client']"
+													},
+													"sink": {
+														"name": "client",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['shipto']"
+													},
+													"sink": {
+														"name": "shipto",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['user']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['ENTRANCE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_ENTRANCE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENT_GPS']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENT_GPS_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['END_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_END_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['START_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_START_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DESTINY_ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DESTINY_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['population']"
+													},
+													"sink": {
+														"name": "population",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['driver_exit']"
+													},
+													"sink": {
+														"name": "destiny_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['gross_weight']"
+													},
+													"sink": {
+														"name": "gross_weight",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "trailer_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['plate']"
+													},
+													"sink": {
+														"name": "plate",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_user']"
+													},
+													"sink": {
+														"name": "assing_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_trailer']"
+													},
+													"sink": {
+														"name": "assing_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['trailer_update']"
+													},
+													"sink": {
+														"name": "trailer_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_date_trailer']"
+													},
+													"sink": {
+														"name": "update_date_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_user_trailer']"
+													},
+													"sink": {
+														"name": "update_user_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['ARRIVE_SOURCE_TRAILER']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRAILER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['semaforo']"
+													},
+													"sink": {
+														"name": "semaforo",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['user']"
+													},
+													"sink": {
+														"name": "supplier_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['last_company_update']"
+													},
+													"sink": {
+														"name": "last_company_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['deliveries']"
+													},
+													"sink": {
+														"name": "deliveries",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['confirmation']"
+													},
+													"sink": {
+														"name": "confirmation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supply_chain']"
+													},
+													"sink": {
+														"name": "supply_chain",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'OUTBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('OUTBOUND_LIVE_01_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "Set URL Complete with Token_01",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 01",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 01",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_01'),'\",\"final_date\":\"', variables('var_fecha_hoy'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_01'),'\",\"final_date\":\"', variables('var_fecha_hoy'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 02",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "api_web API FECHA_EN_PLAN_COPY_01",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters_02",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 03",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "api_web API FECHA_EN_PLAN_COPY_02",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters_03",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"DESPACHO_REAL\",\"initial_date\":\"',variables('var_fecha_hoy'),'\",\"final_date\":\"', variables('var_fecha_hoy_02'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"DESPACHO_REAL\",\"initial_date\":\"',variables('var_fecha_hoy'),'\",\"final_date\":\"', variables('var_fecha_hoy_02'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set URL Complete with Token_02",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 02",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete_02",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters_02'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set URL Complete with Token_03",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 03",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete_03",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters_03'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "api_web API FECHA_EN_PLAN_COPY_02",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_02",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['truck']['eco']"
+													},
+													"sink": {
+														"name": "truck_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['unity']"
+													},
+													"sink": {
+														"name": "unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['type_unity']"
+													},
+													"sink": {
+														"name": "type_unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['ARRIVE_SOURCE_TRUCK']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRUCK",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['box']"
+													},
+													"sink": {
+														"name": "box",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['note']"
+													},
+													"sink": {
+														"name": "note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['notes']"
+													},
+													"sink": {
+														"name": "source_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRUCK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRUCK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRAILER']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRAILER_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['notes']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['driver_exit']"
+													},
+													"sink": {
+														"name": "source_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal']"
+													},
+													"sink": {
+														"name": "seal",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['layout']"
+													},
+													"sink": {
+														"name": "layout",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal_type']"
+													},
+													"sink": {
+														"name": "seal_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['box_picking']"
+													},
+													"sink": {
+														"name": "box_picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_chep']"
+													},
+													"sink": {
+														"name": "platform_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_white']"
+													},
+													"sink": {
+														"name": "platform_white",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['warehouse_note']"
+													},
+													"sink": {
+														"name": "warehouse_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['is_committee_priority']"
+													},
+													"sink": {
+														"name": "is_committee_priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['date_invoice']"
+													},
+													"sink": {
+														"name": "date_invoice",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['convenio_chep']"
+													},
+													"sink": {
+														"name": "convenio_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['main_location']"
+													},
+													"sink": {
+														"name": "main_location",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['with_document']"
+													},
+													"sink": {
+														"name": "with_document",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['valuation_note']"
+													},
+													"sink": {
+														"name": "valuation_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['client']"
+													},
+													"sink": {
+														"name": "client",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['shipto']"
+													},
+													"sink": {
+														"name": "shipto",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['user']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['ENTRANCE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_ENTRANCE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENT_GPS']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENT_GPS_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['END_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_END_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['START_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_START_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DESTINY_ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DESTINY_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['population']"
+													},
+													"sink": {
+														"name": "population",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['driver_exit']"
+													},
+													"sink": {
+														"name": "destiny_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['gross_weight']"
+													},
+													"sink": {
+														"name": "gross_weight",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "trailer_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['plate']"
+													},
+													"sink": {
+														"name": "plate",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_user']"
+													},
+													"sink": {
+														"name": "assing_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_trailer']"
+													},
+													"sink": {
+														"name": "assing_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['trailer_update']"
+													},
+													"sink": {
+														"name": "trailer_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_date_trailer']"
+													},
+													"sink": {
+														"name": "update_date_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_user_trailer']"
+													},
+													"sink": {
+														"name": "update_user_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['ARRIVE_SOURCE_TRAILER']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRAILER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['semaforo']"
+													},
+													"sink": {
+														"name": "semaforo",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['user']"
+													},
+													"sink": {
+														"name": "supplier_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['last_company_update']"
+													},
+													"sink": {
+														"name": "last_company_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['deliveries']"
+													},
+													"sink": {
+														"name": "deliveries",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['confirmation']"
+													},
+													"sink": {
+														"name": "confirmation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supply_chain']"
+													},
+													"sink": {
+														"name": "supply_chain",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete_02')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'OUTBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('OUTBOUND_LIVE_02_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "api_web API FECHA_EN_PLAN_COPY_03",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_03",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['truck']['eco']"
+													},
+													"sink": {
+														"name": "truck_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['unity']"
+													},
+													"sink": {
+														"name": "unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['type_unity']"
+													},
+													"sink": {
+														"name": "type_unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['ARRIVE_SOURCE_TRUCK']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRUCK",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['box']"
+													},
+													"sink": {
+														"name": "box",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['note']"
+													},
+													"sink": {
+														"name": "note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['notes']"
+													},
+													"sink": {
+														"name": "source_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRUCK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRUCK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRAILER']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRAILER_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['notes']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['driver_exit']"
+													},
+													"sink": {
+														"name": "source_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal']"
+													},
+													"sink": {
+														"name": "seal",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['layout']"
+													},
+													"sink": {
+														"name": "layout",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal_type']"
+													},
+													"sink": {
+														"name": "seal_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['box_picking']"
+													},
+													"sink": {
+														"name": "box_picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_chep']"
+													},
+													"sink": {
+														"name": "platform_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_white']"
+													},
+													"sink": {
+														"name": "platform_white",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['warehouse_note']"
+													},
+													"sink": {
+														"name": "warehouse_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['is_committee_priority']"
+													},
+													"sink": {
+														"name": "is_committee_priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['date_invoice']"
+													},
+													"sink": {
+														"name": "date_invoice",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['convenio_chep']"
+													},
+													"sink": {
+														"name": "convenio_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['main_location']"
+													},
+													"sink": {
+														"name": "main_location",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['with_document']"
+													},
+													"sink": {
+														"name": "with_document",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['valuation_note']"
+													},
+													"sink": {
+														"name": "valuation_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['client']"
+													},
+													"sink": {
+														"name": "client",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['shipto']"
+													},
+													"sink": {
+														"name": "shipto",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['user']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['ENTRANCE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_ENTRANCE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENT_GPS']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENT_GPS_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['END_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_END_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['START_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_START_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DESTINY_ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DESTINY_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['population']"
+													},
+													"sink": {
+														"name": "population",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['driver_exit']"
+													},
+													"sink": {
+														"name": "destiny_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['gross_weight']"
+													},
+													"sink": {
+														"name": "gross_weight",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "trailer_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['plate']"
+													},
+													"sink": {
+														"name": "plate",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_user']"
+													},
+													"sink": {
+														"name": "assing_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_trailer']"
+													},
+													"sink": {
+														"name": "assing_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['trailer_update']"
+													},
+													"sink": {
+														"name": "trailer_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_date_trailer']"
+													},
+													"sink": {
+														"name": "update_date_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_user_trailer']"
+													},
+													"sink": {
+														"name": "update_user_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['ARRIVE_SOURCE_TRAILER']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRAILER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['semaforo']"
+													},
+													"sink": {
+														"name": "semaforo",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['user']"
+													},
+													"sink": {
+														"name": "supplier_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['last_company_update']"
+													},
+													"sink": {
+														"name": "last_company_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['deliveries']"
+													},
+													"sink": {
+														"name": "deliveries",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['confirmation']"
+													},
+													"sink": {
+														"name": "confirmation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supply_chain']"
+													},
+													"sink": {
+														"name": "supply_chain",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete_03')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'OUTBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('OUTBOUND_LIVE_03_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "INBOUND_LIVE",
+							"activities": [
+								{
+									"name": "api_web API FECHA_CREACION_COPY_01_IN",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_01_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['date_gi']"
+													},
+													"sink": {
+														"name": "date_gi",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['STAY']['hours']"
+													},
+													"sink": {
+														"name": "hours",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['RAMP_ON']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_RAMP_ON_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['rcontrol']"
+													},
+													"sink": {
+														"name": "rcontrol",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ON_DOWNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ON_DOWNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DOWNLOAD_ON_CUSTOM_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['user']"
+													},
+													"sink": {
+														"name": "user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['STO']"
+													},
+													"sink": {
+														"name": "STO",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['notes']"
+													},
+													"sink": {
+														"name": "notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['picking']"
+													},
+													"sink": {
+														"name": "picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['number_chep']"
+													},
+													"sink": {
+														"name": "number_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['seal_number']"
+													},
+													"sink": {
+														"name": "seal_number",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['temperature']"
+													},
+													"sink": {
+														"name": "temperature",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['box_type']"
+													},
+													"sink": {
+														"name": "box_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['priority']"
+													},
+													"sink": {
+														"name": "priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['circuit_name']"
+													},
+													"sink": {
+														"name": "circuit_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'INBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('INBOUND_LIVE_01_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "Set URL Complete with Token_01_IN",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 01_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 01_IN",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_01'),'\",\"final_date\":\"', variables('var_fecha_hoy'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_01'),'\",\"final_date\":\"', variables('var_fecha_hoy'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 02_IN",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "api_web API FECHA_CREACION_COPY_01_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters_02",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 03_IN",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "api_web API FECHA_CREACION_COPY_02_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters_03",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"SI9\",\"initial_date\":\"',variables('var_fecha_02'),'\",\"final_date\":\"', variables('var_fecha_01'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set URL Complete with Token_02_IN",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 02_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete_02",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters_02'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set URL Complete with Token_03_copy1",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 03_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete_03",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters_03'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "api_web API FECHA_CREACION_COPY_02_IN",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_02_IN",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['date_gi']"
+													},
+													"sink": {
+														"name": "date_gi",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['STAY']['hours']"
+													},
+													"sink": {
+														"name": "hours",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['RAMP_ON']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_RAMP_ON_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['rcontrol']"
+													},
+													"sink": {
+														"name": "rcontrol",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ON_DOWNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ON_DOWNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DOWNLOAD_ON_CUSTOM_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['user']"
+													},
+													"sink": {
+														"name": "user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['STO']"
+													},
+													"sink": {
+														"name": "STO",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['notes']"
+													},
+													"sink": {
+														"name": "notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['picking']"
+													},
+													"sink": {
+														"name": "picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['number_chep']"
+													},
+													"sink": {
+														"name": "number_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['seal_number']"
+													},
+													"sink": {
+														"name": "seal_number",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['temperature']"
+													},
+													"sink": {
+														"name": "temperature",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['box_type']"
+													},
+													"sink": {
+														"name": "box_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['priority']"
+													},
+													"sink": {
+														"name": "priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['circuit_name']"
+													},
+													"sink": {
+														"name": "circuit_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete_02')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'INBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('INBOUND_LIVE_02_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "api_web API FECHA_CREACION_COPY_03_IN",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_03_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['date_gi']"
+													},
+													"sink": {
+														"name": "date_gi",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['STAY']['hours']"
+													},
+													"sink": {
+														"name": "hours",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['RAMP_ON']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_RAMP_ON_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['rcontrol']"
+													},
+													"sink": {
+														"name": "rcontrol",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ON_DOWNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ON_DOWNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DOWNLOAD_ON_CUSTOM_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['user']"
+													},
+													"sink": {
+														"name": "user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['STO']"
+													},
+													"sink": {
+														"name": "STO",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['notes']"
+													},
+													"sink": {
+														"name": "notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['picking']"
+													},
+													"sink": {
+														"name": "picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['number_chep']"
+													},
+													"sink": {
+														"name": "number_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['seal_number']"
+													},
+													"sink": {
+														"name": "seal_number",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['temperature']"
+													},
+													"sink": {
+														"name": "temperature",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['box_type']"
+													},
+													"sink": {
+														"name": "box_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['priority']"
+													},
+													"sink": {
+														"name": "priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['circuit_name']"
+													},
+													"sink": {
+														"name": "circuit_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete_03')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'INBOUND_LIVE_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('INBOUND_LIVE_03_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "OUTBOUND_HISTORICO",
+							"activities": [
+								{
+									"name": "api_web API DESPACHO_REAL_HIST_COPY_01",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_01_H",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['truck']['eco']"
+													},
+													"sink": {
+														"name": "truck_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['unity']"
+													},
+													"sink": {
+														"name": "unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['type_unity']"
+													},
+													"sink": {
+														"name": "type_unity",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['truck']['ARRIVE_SOURCE_TRUCK']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRUCK",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['box']"
+													},
+													"sink": {
+														"name": "box",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['note']"
+													},
+													"sink": {
+														"name": "note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['notes']"
+													},
+													"sink": {
+														"name": "source_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['CREATED']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_CREATED_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITH_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITH_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['date']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_plan']['WITHOUT_DOC']['user']"
+													},
+													"sink": {
+														"name": "source_src_plan_WITHOUT_DOC_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['EXIT']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_EXIT_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['INVOICE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_INVOICE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DISPATCH']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_DISPATCH_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ENTRANCE']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ENTRANCE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRUCK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRUCK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['LOAD_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_LOAD_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['ARRIVE_DESK']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_ARRIVE_DESK_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['DESK_TRAILER']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_DESK_TRAILER_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['notes']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_END_notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_END']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['date']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['src_track']['PREPARATION_START']['user']"
+													},
+													"sink": {
+														"name": "source_src_track_PREPARATION_START_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['driver_exit']"
+													},
+													"sink": {
+														"name": "source_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal']"
+													},
+													"sink": {
+														"name": "seal",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['layout']"
+													},
+													"sink": {
+														"name": "layout",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['seal_type']"
+													},
+													"sink": {
+														"name": "seal_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['box_picking']"
+													},
+													"sink": {
+														"name": "box_picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_chep']"
+													},
+													"sink": {
+														"name": "platform_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['platform_white']"
+													},
+													"sink": {
+														"name": "platform_white",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['warehouse_note']"
+													},
+													"sink": {
+														"name": "warehouse_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['preparation']['is_committee_priority']"
+													},
+													"sink": {
+														"name": "is_committee_priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['date_invoice']"
+													},
+													"sink": {
+														"name": "date_invoice",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['convenio_chep']"
+													},
+													"sink": {
+														"name": "convenio_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['main_location']"
+													},
+													"sink": {
+														"name": "main_location",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['with_document']"
+													},
+													"sink": {
+														"name": "with_document",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['source']['valuation_note']"
+													},
+													"sink": {
+														"name": "valuation_note",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['client']"
+													},
+													"sink": {
+														"name": "client",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['shipto']"
+													},
+													"sink": {
+														"name": "shipto",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['UPDATE_DATE']['user']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_UPDATE_DATE_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_plan']['ENTRANCE_DATE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_plan_ENTRANCE_DATE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENT_GPS']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENT_GPS_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['END_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_END_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['START_UNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_START_UNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DESTINY_ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DESTINY_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['population']"
+													},
+													"sink": {
+														"name": "population",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['driver_exit']"
+													},
+													"sink": {
+														"name": "destiny_driver_exit",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['gross_weight']"
+													},
+													"sink": {
+														"name": "gross_weight",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "trailer_eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['plate']"
+													},
+													"sink": {
+														"name": "plate",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_user']"
+													},
+													"sink": {
+														"name": "assing_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['assing_trailer']"
+													},
+													"sink": {
+														"name": "assing_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['trailer_update']"
+													},
+													"sink": {
+														"name": "trailer_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_date_trailer']"
+													},
+													"sink": {
+														"name": "update_date_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['update_user_trailer']"
+													},
+													"sink": {
+														"name": "update_user_trailer",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['ARRIVE_SOURCE_TRAILER']"
+													},
+													"sink": {
+														"name": "ARRIVE_SOURCE_TRAILER",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['semaforo']"
+													},
+													"sink": {
+														"name": "semaforo",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['user']"
+													},
+													"sink": {
+														"name": "supplier_user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['last_company_update']"
+													},
+													"sink": {
+														"name": "last_company_update",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['deliveries']"
+													},
+													"sink": {
+														"name": "deliveries",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['confirmation']"
+													},
+													"sink": {
+														"name": "confirmation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supply_chain']"
+													},
+													"sink": {
+														"name": "supply_chain",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'OUTBOUND_HISTORICO_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('OUTBOUND_HISTORICO_01_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "Set URL Complete with Token_01_H",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 01_H",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 01_H",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_ayer_00'),'\",\"final_date\":\"', variables('var_fecha_ayer_23'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_ayer_00'),'\",\"final_date\":\"', variables('var_fecha_ayer_23'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "INBOUND_HISTORICO",
+							"activities": [
+								{
+									"name": "api_web API FIN_DESCARGA_HIST_COPY_01_copy1",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set URL Complete with Token_01_H_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "POST",
+											"requestBody": "{}"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['source']['location_name']"
+													},
+													"sink": {
+														"name": "location_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['status']"
+													},
+													"sink": {
+														"name": "status",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['date_gi']"
+													},
+													"sink": {
+														"name": "date_gi",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny']"
+													},
+													"sink": {
+														"name": "destiny",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['STAY']['hours']"
+													},
+													"sink": {
+														"name": "hours",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['RAMP_ON']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_RAMP_ON_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ENTRANCE_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ENTRANCE']['rcontrol']"
+													},
+													"sink": {
+														"name": "rcontrol",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['ON_DOWNLOAD']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_ON_DOWNLOAD_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['date']"
+													},
+													"sink": {
+														"name": "destiny_dst_track_DOWNLOAD_ON_CUSTOM_date",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['dst_track']['DOWNLOAD_ON_CUSTOM']['user']"
+													},
+													"sink": {
+														"name": "user",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['STO']"
+													},
+													"sink": {
+														"name": "STO",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['ramp']"
+													},
+													"sink": {
+														"name": "ramp",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['notes']"
+													},
+													"sink": {
+														"name": "notes",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['auditor']"
+													},
+													"sink": {
+														"name": "auditor",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['customs']"
+													},
+													"sink": {
+														"name": "customs",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['picking']"
+													},
+													"sink": {
+														"name": "picking",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['coworker']"
+													},
+													"sink": {
+														"name": "coworker",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['number_chep']"
+													},
+													"sink": {
+														"name": "number_chep",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['seal_number']"
+													},
+													"sink": {
+														"name": "seal_number",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['temperature']"
+													},
+													"sink": {
+														"name": "temperature",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_rack']"
+													},
+													"sink": {
+														"name": "pallets_rack",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['destiny']['destiny_complement']['pallets_block']"
+													},
+													"sink": {
+														"name": "pallets_block",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['eco']"
+													},
+													"sink": {
+														"name": "eco",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['trailer']['box_type']"
+													},
+													"sink": {
+														"name": "box_type",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['carga_tm']"
+													},
+													"sink": {
+														"name": "carga_tm",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['priority']"
+													},
+													"sink": {
+														"name": "priority",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['supplier']['company_name']"
+													},
+													"sink": {
+														"name": "company_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['circuit_name']"
+													},
+													"sink": {
+														"name": "circuit_name",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['type_operation']"
+													},
+													"sink": {
+														"name": "type_operation",
+														"type": "String"
+													}
+												},
+												{
+													"source": {
+														"path": "$['grupo_comercial']"
+													},
+													"sink": {
+														"name": "grupo_comercial",
+														"type": "String"
+													}
+												}
+											],
+											"collectionReference": ""
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "nmex_rest_dataset_api",
+											"type": "DatasetReference",
+											"parameters": {
+												"url_dataset_post_rest_api": {
+													"value": "@variables('url_complete')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adsl2_origenesmx_csv",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_directory": {
+													"value": "@concat(pipeline().parameters.par_folder,'INBOUND_HISTORICO_ARCHIVOS/',variables('var_final_date'),'/')",
+													"type": "Expression"
+												},
+												"par_filename": {
+													"value": "@concat('INBOUND_HISTORICO_01_',pipeline().parameters.par_search_type,'_',variables('date_ext'),'.csv')",
+													"type": "Expression"
+												},
+												"par_delimeter": ","
+											}
+										}
+									]
+								},
+								{
+									"name": "Set URL Complete with Token_01_H_copy1",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set Parameters Copy 01_H_copy1",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "url_complete",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url_base,pipeline().parameters.par_function,'?token=',activity('web api auth').output.token,'&parameters=',variables('var_parameters'))",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set Parameters Copy 01_H_copy1",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_parameters",
+										"value": {
+											"value": "@if(empty(pipeline().parameters.par_status),\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"initial_date\":\"',variables('var_fecha_ayer_00'),'\",\"final_date\":\"', variables('var_fecha_ayer_23'),'\"}}')\n    ,\n    concat('{\"search_filters\": {\"search_type\":\"',pipeline().parameters.par_search_type,'\",\"status\":\"',pipeline().parameters.par_status,'\",\"initial_date\":\"',variables('var_fecha_ayer_00'),'\",\"final_date\":\"', variables('var_fecha_ayer_23'),'\"}}')\n    )",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "Fecha Ayer 00",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Fecha Ayer 23",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_ayer_00",
+					"value": {
+						"value": "@formatDateTime(adddays(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),-1),'yyyy-MM-dd 00:00')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Fecha Ayer 23",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Fecha Hoy_02",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_ayer_23",
+					"value": {
+						"value": "@formatDateTime(adddays(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),-1),'yyyy-MM-dd 23:59')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Fecha 01",
+				"description": "Fecha 01 = Fecha Actual - 14 Dias",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_01",
+					"value": {
+						"value": "@formatDateTime(adddays(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),-14),'yyyy-MM-dd 00:00')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Fecha 02",
+				"description": "Fecha 02 = Fecha 01 - 14 Dias",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Fecha 01",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_02",
+					"value": {
+						"value": "@formatDateTime(adddays(variables('var_fecha_01'),-14),'yyyy-MM-dd 00:00')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Fecha 03",
+				"description": "Fecha 03 = Hoy",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Fecha 02",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_03",
+					"value": {
+						"value": "@formatDateTime(adddays(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),-1),'yyyy-MM-dd 23:59')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Fecha Hoy",
+				"description": "Fecha Hoy = Hoy 23:59",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Fecha 03",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_hoy",
+					"value": {
+						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),'yyyy-MM-dd 00:00')\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Fecha Hoy_02",
+				"description": "Fecha Hoy = Hoy 23:59",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Fecha Hoy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_fecha_hoy_02",
+					"value": {
+						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)'),'yyyy-MM-dd 23:59')\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Execute Carga Tablas",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Switch1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_load_tablas_api_inb_out_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parFechaExec": {
+							"value": "@variables('var_final_date')",
+							"type": "Expression"
+						},
+						"parFechaTabla": {
+							"value": "@pipeline().parameters.par_tabla",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Error Auth",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "web api auth",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocorreu um Erro na Autenticação da API",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;valeria.camacho1@mx.nestle.com",
+						"par_project_name": "ALICE API",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@concat('Auth API - ',pipeline().parameters.par_tabla)",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('var_final_date')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Error Copy",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Switch1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocorreu um Erro na Copia dos Dados da API",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;valeria.camacho1@mx.nestle.com",
+						"par_project_name": "ALICE API",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@concat('Copy Data API - ',pipeline().parameters.par_tabla)",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('var_final_date')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Error Load",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute Carga Tablas",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocorreu um Erro na Carga das Tabelas no Databricks",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;valeria.camacho1@mx.nestle.com",
+						"par_project_name": "ALICE API",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@concat('Load Tablas API - ',pipeline().parameters.par_tabla)",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('var_final_date')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Sucesso",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Execute Carga Tablas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Proceso de carga y copia de datos API completado con éxito",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;valeria.camacho1@mx.nestle.com",
+						"par_project_name": "ALICE API",
+						"par_status_msg": "Sucesso",
+						"par_etapa": {
+							"value": "@concat('Fin Carga API Sucesso - ',pipeline().parameters.par_tabla)",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('var_final_date')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_search_type": {
+				"type": "string",
+				"defaultValue": "DESPACHO_REAL"
+			},
+			"par_url": {
+				"type": "string",
+				"defaultValue": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1"
+			},
+			"par_folder": {
+				"type": "string",
+				"defaultValue": "/inbound/ext_api_files/"
+			},
+			"par_url_base": {
+				"type": "string",
+				"defaultValue": "https://www.rcontrol.com.mx/japi/"
+			},
+			"par_cont": {
+				"type": "string",
+				"defaultValue": "dev"
+			},
+			"par_status": {
+				"type": "string"
+			},
+			"par_function": {
+				"type": "string",
+				"defaultValue": "get_shipment_info_outb"
+			},
+			"par_tabla": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"var_initial_date": {
+				"type": "String"
+			},
+			"var_final_date": {
+				"type": "String"
+			},
+			"date_ext": {
+				"type": "String"
+			},
+			"var_parameters": {
+				"type": "String"
+			},
+			"url_complete": {
+				"type": "String"
+			},
+			"var_fecha_01": {
+				"type": "String"
+			},
+			"var_fecha_02": {
+				"type": "String"
+			},
+			"var_fecha_03": {
+				"type": "String"
+			},
+			"var_fecha_hoy": {
+				"type": "String"
+			},
+			"var_parameters_02": {
+				"type": "String"
+			},
+			"var_parameters_03": {
+				"type": "String"
+			},
+			"url_complete_02": {
+				"type": "String"
+			},
+			"url_complete_03": {
+				"type": "String"
+			},
+			"var_fecha_hoy_02": {
+				"type": "String"
+			},
+			"var_fecha_ayer_00": {
+				"type": "String"
+			},
+			"var_fecha_ayer_23": {
+				"type": "String"
+			},
+			"teste": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

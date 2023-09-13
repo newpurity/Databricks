@@ -1,0 +1,139 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"description": "Copy files of any size from SharePoint  to Data Lake, including copy all files matching a startswith condition of a folder and files modified in the last x hours.\n\nTo use this pipeline you need to have the sharepoint client id and secret id registered in the dedicated sharepoint key vault",
+		"activities": [
+			{
+				"name": "Set ClientSecret",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varClientSecret",
+					"value": "h6iG0ZNe9lqMPxzyQsf+oj9PBnGZ+Gtu6rYOoMHj5ig="
+				}
+			},
+			{
+				"name": "Set varClientID",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varClientID",
+					"value": "fe4b99e8-cb9c-477d-b6c0-721f17e199a2"
+				}
+			},
+			{
+				"name": "GetSharepointBearerToken_copy1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Set varClientID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set ClientSecret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://accounts.accesscontrol.windows.net/12a3af23-a769-4654-847f-958f3d479f4a/tokens/OAuth/2",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials&client_id=',variables('varClientID'),'12a3af23-a769-4654-847f-958f3d479f4a&client_secret=',variables('varClientSecret'),'&resource=00000003-0000-0ff1-ce00-000000000000/nestle.sharepoint.com12a3af23-a769-4654-847f-958f3d479f4a')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ReadSharepointFolder_copy1",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "GetSharepointBearerToken_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat(pipeline().parameters.parShpSiteUrl,'/_api/web/GetFolderByServerRelativeUrl(''',replace(pipeline().parameters.parShpSiteUrl,'https://nestle.sharepoint.com',''),'/',pipeline().parameters.parShpRelativeFolderPath,''')/Files')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@{concat('Bearer ', activity('GetSharepointBearerToken_copy1').output.access_token)}",
+							"type": "Expression"
+						},
+						"Accept": "application/json;odata=verbose"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"parFileName": {
+				"type": "string",
+				"defaultValue": "Tipification"
+			},
+			"parShpSiteUrl": {
+				"type": "string",
+				"defaultValue": "https://nestle.sharepoint.com/teams/nmex-tipification-trabajo"
+			},
+			"parShpRelativeFolderPath": {
+				"type": "string",
+				"defaultValue": "Documentos Compartilhados"
+			},
+			"parModifiedLastNHours": {
+				"type": "string",
+				"defaultValue": "200"
+			}
+		},
+		"variables": {
+			"varClientID": {
+				"type": "String"
+			},
+			"varClientSecret": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_data-load-tool"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

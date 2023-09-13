@@ -1,0 +1,17 @@
+{
+	"name": "HttpServer1",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://prod-00-nams-pr-baisein-wrpa5gaht7mno-internal.westus2.environments.microsoftazurelogicapps.net:443/workflows/ceca053c86ba428e9c4e9d71134fa0c9/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=tMCGaXFb_ItzhjbxFqTzY1HvqDexzZZt75G3Eq0gzc4",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		},
+		"connectVia": {
+			"referenceName": "nmex-pp-origenesmx-ithub-ir",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

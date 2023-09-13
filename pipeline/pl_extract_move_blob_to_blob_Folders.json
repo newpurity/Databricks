@@ -1,0 +1,146 @@
+{
+	"name": "pl_extract_move_blob_to_blob_Folders",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Folder",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_sc_nmex_devorigmx_generic",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_container": {
+								"value": "@pipeline().parameters.parContainer",
+								"type": "Expression"
+							},
+							"par_diretorio": {
+								"value": "@pipeline().parameters.parPathCopy",
+								"type": "Expression"
+							},
+							"par_arquivo": {
+								"value": "@pipeline().parameters.parFileNameCopy",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Filter Blob Folders",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Folder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Folder').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(item().name,'Teste_caxias')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach Copy",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Blob Folders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter Blob Folders').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Pipeline Filtering Folders",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_extract_move_blob_to_blob_filter",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"parFolderName": {
+										"value": "@item().name",
+										"type": "Expression"
+									},
+									"parContName": {
+										"value": "@pipeline().parameters.parContainer",
+										"type": "Expression"
+									},
+									"parPathCopy": {
+										"value": "@pipeline().parameters.parPathCopy",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"parPathCopy": {
+				"type": "string",
+				"defaultValue": "inbound"
+			},
+			"parPathDestination": {
+				"type": "string",
+				"defaultValue": "inbound/Teste_caxias_historical"
+			},
+			"parContainer": {
+				"type": "string",
+				"defaultValue": "dev"
+			},
+			"parFileNameCopy": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

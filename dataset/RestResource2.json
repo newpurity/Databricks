@@ -1,0 +1,24 @@
+{
+	"name": "RestResource2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "api_web_test",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"par_url": {
+					"value": "@dataset().par_url",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"par_url": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

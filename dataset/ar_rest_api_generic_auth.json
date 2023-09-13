@@ -1,0 +1,24 @@
+{
+	"name": "ar_rest_api_generic_auth",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ar_rest_api_generic_auth",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"par_url_auth": {
+					"value": "@dataset().par_url_complete",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"par_url_complete": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

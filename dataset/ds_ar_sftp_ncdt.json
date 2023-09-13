@@ -1,0 +1,39 @@
+{
+	"name": "ds_ar_sftp_ncdt",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ar_sftp_ncdt",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"parhost": "200.38.155.5",
+				"parport": 22,
+				"paruser": "nestle_reportes_cliente",
+				"parkey": "sftp-pass-nestletp"
+			}
+		},
+		"parameters": {
+			"par_directory": {
+				"type": "string"
+			},
+			"par_filename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": {
+					"value": "@if(equals(dataset().par_filename,'0'),null , dataset().par_filename)\r\n\r\n",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().par_directory",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

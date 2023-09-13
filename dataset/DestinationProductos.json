@@ -1,0 +1,22 @@
+{
+	"name": "DestinationProductos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "mayoreodigital"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "inbound/mayoreo_digital/productos",
+				"container": "dev"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

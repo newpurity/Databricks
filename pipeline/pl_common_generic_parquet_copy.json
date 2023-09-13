@@ -1,0 +1,119 @@
+{
+	"name": "pl_common_generic_parquet_copy",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get ADF_parameters_parquets",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_datascience_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "datastore/sales/adf_parameters/",
+							"par_filename": "ADF_parameters_parquets.csv",
+							"par_delimiter": ",",
+							"par_encoding": "UTF-8",
+							"par_header": true
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Filter ADF_parameters_parquet",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get ADF_parameters_parquets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get ADF_parameters_parquets').output.value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(string(item().db_sol_path),pipeline().parameters.par_db_sol_path)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Parquet Generic Notebook",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Filter ADF_parameters_parquet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sl_common_data_tool/execution/0010.Exec_Copy_Last_Version_Parquets",
+					"baseParameters": {
+						"parPath": {
+							"value": "@concat(activity('Filter ADF_parameters_parquet').output.value[0]['path'],activity('Filter ADF_parameters_parquet').output.value[0]['tb_name'])",
+							"type": "Expression"
+						},
+						"parPathlv": {
+							"value": "@concat(activity('Filter ADF_parameters_parquet').output.value[0]['path_lv'],activity('Filter ADF_parameters_parquet').output.value[0]['tb_name'])",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_cluster": "0130-211945-mcv1mi12"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_db_sol_path": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_sales/amsmx_common_db"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

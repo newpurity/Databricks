@@ -1,0 +1,68 @@
+{
+	"name": "pl_common_generic_databricks_notebook",
+	"properties": {
+		"activities": [
+			{
+				"name": "Databricks Notebook",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat(pipeline().parameters.par_db_root_path,pipeline().parameters.par_db_folder_path,pipeline().parameters.par_db_type_path,pipeline().parameters.par_db_etl_path,pipeline().parameters.par_db_sol_path)",
+						"type": "Expression"
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_cluster": "0517-180241-h3awdlrk"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_db_type_path": {
+				"type": "string"
+			},
+			"par_db_etl_path": {
+				"type": "string"
+			},
+			"par_db_folder_path": {
+				"type": "string"
+			},
+			"par_db_sol_path": {
+				"type": "string"
+			},
+			"par_db_root_path": {
+				"type": "string",
+				"defaultValue": "/Repos/Production/DatabricksMX/"
+			}
+		},
+		"variables": {
+			"var_blob_folderpath": {
+				"type": "String"
+			},
+			"var_sol": {
+				"type": "Array"
+			},
+			"var_test": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "amsmx_sales/amsmx_common_db"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,138 @@
+{
+	"name": "pl_extract_p_ic3",
+	"properties": {
+		"activities": [
+			{
+				"name": "IC3 to DataLake",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Variavel UTC",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "IC3_SQL_TO_LAKE",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adsl2_origenesmx_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": {
+								"value": "@concat('inbound/credit_notes/files_ic3/',variables('varUTCNow'))",
+								"type": "Expression"
+							},
+							"par_filename": {
+								"value": "@concat('ic3_',variables('varUTCNow'),'.csv')",
+								"type": "Expression"
+							},
+							"par_delimeter": ","
+						}
+					}
+				]
+			},
+			{
+				"name": "Variavel UTC",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varUTCNow",
+					"value": {
+						"value": "@utcnow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Carga Bronze IC3",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "IC3 to DataLake",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/rafael.medeiros2@br.nestle.com/sl_creditnotes_tipification/01_inbound_ic3",
+					"baseParameters": {
+						"parArchivoNombreAtual": {
+							"value": "@concat('ic3_',variables('varUTCNow'),'.csv')",
+							"type": "Expression"
+						},
+						"parDateTimeUTC": {
+							"value": "@variables('varUTCNow')",
+							"type": "Expression"
+						},
+						"parPathFull": {
+							"value": "@concat(variables('varUTCNow'),'/ic3_',variables('varUTCNow'),'.csv')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"variables": {
+			"varUTCNow": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

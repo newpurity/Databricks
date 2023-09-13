@@ -1,0 +1,39 @@
+{
+	"name": "tg_alice_tb_mx_sc_otr_contabilizado",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_extract_tables_alice",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"m_parContainer": "dev",
+					"m_parFileNameTitle": "contabilizado",
+					"m_parPathDestination": "inbound/alice/",
+					"m_parPathCopy": "inbound/alice/",
+					"m_parFileNameCopy": "OTR_Contabilizado*"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-20T07:15:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						15
+					],
+					"hours": [
+						7
+					]
+				}
+			}
+		}
+	}
+}

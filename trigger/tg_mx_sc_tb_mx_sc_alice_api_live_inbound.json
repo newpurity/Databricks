@@ -1,0 +1,64 @@
+{
+	"name": "tg_mx_sc_tb_mx_sc_alice_api_live_inbound",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_extract_api_tablas_inb_outb",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"par_search_type": "FECHA_CREACION",
+					"par_url": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1",
+					"par_folder": "/inbound/ext_api_files/",
+					"par_url_base": "https://www.rcontrol.com.mx/japi/",
+					"par_cont": "dev",
+					"par_status": "SI1, SI2,SI3,SI4,SI5,SI6,Si7,SI8",
+					"par_function": "get_shipment_info_inb",
+					"par_tabla": "INBOUND_LIVE"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-03-31T21:11:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						15,
+						45
+					],
+					"hours": [
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23
+					]
+				}
+			}
+		}
+	}
+}

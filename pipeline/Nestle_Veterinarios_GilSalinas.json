@@ -1,0 +1,23 @@
+{
+	"name": "Nestle_Veterinarios_GilSalinas",
+	"properties": {
+		"description": "Pipeline de Nestlé Veterinarios para el cliente Gil Salinas",
+		"activities": [
+			{
+				"name": "Wait1",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_supply_alice/pl_extract/amsmx_veterinarios"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,14 @@
+{
+	"name": "nmex-dv-origmx-dh-usw2-adf",
+	"properties": {
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "true"
+		}
+	},
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "31b31ada-f49c-49d3-8eb3-d43084e2bfbe",
+		"tenantId": "12a3af23-a769-4654-847f-958f3d479f4a"
+	}
+}

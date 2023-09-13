@@ -1,0 +1,204 @@
+{
+	"name": "Excel1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_origenesmx",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "in",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Consolidado General IC3 24102022.xlsx",
+				"folderPath": "temp_file_nbs",
+				"fileSystem": "dev"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "tradeID",
+				"type": "String"
+			},
+			{
+				"name": "TA",
+				"type": "String"
+			},
+			{
+				"name": "Nombre",
+				"type": "String"
+			},
+			{
+				"name": "AcuerdoWBSCliente",
+				"type": "String"
+			},
+			{
+				"name": "TipoTA",
+				"type": "String"
+			},
+			{
+				"name": "StatusSap",
+				"type": "String"
+			},
+			{
+				"name": "Gasto Efectivo / Presupuesto",
+				"type": "String"
+			},
+			{
+				"name": "Nota de Credito/ Gr",
+				"type": "String"
+			},
+			{
+				"name": "Compromiso",
+				"type": "String"
+			},
+			{
+				"name": "Saldo/Disponible",
+				"type": "String"
+			},
+			{
+				"name": "GastosCostos",
+				"type": "String"
+			},
+			{
+				"name": "ClientesNivel4",
+				"type": "String"
+			},
+			{
+				"name": "Nodo4",
+				"type": "String"
+			},
+			{
+				"name": "NodoObjetivo",
+				"type": "String"
+			},
+			{
+				"name": "NivelCarga",
+				"type": "String"
+			},
+			{
+				"name": "Canal",
+				"type": "String"
+			},
+			{
+				"name": "Campaña",
+				"type": "String"
+			},
+			{
+				"name": "Tactica",
+				"type": "String"
+			},
+			{
+				"name": "TipoGasto",
+				"type": "String"
+			},
+			{
+				"name": "Complementaria",
+				"type": "String"
+			},
+			{
+				"name": "Categorias",
+				"type": "String"
+			},
+			{
+				"name": "Payer",
+				"type": "String"
+			},
+			{
+				"name": "OrgVentas",
+				"type": "String"
+			},
+			{
+				"name": "OrganizacionVenta",
+				"type": "String"
+			},
+			{
+				"name": "CanalDistribucion",
+				"type": "String"
+			},
+			{
+				"name": "FechaInicio",
+				"type": "String"
+			},
+			{
+				"name": "FechaFinal",
+				"type": "String"
+			},
+			{
+				"name": "FechaCreacion",
+				"type": "String"
+			},
+			{
+				"name": "FechaAprobacion",
+				"type": "String"
+			},
+			{
+				"name": "FechaCarga",
+				"type": "String"
+			},
+			{
+				"name": "AprobadorPorMonto",
+				"type": "String"
+			},
+			{
+				"name": "Implementador",
+				"type": "String"
+			},
+			{
+				"name": "FueraVigencia",
+				"type": "String"
+			},
+			{
+				"name": "FueraEnvio",
+				"type": "String"
+			},
+			{
+				"name": "AbiertaCerrada",
+				"type": "String"
+			},
+			{
+				"name": "DeptoPropone",
+				"type": "String"
+			},
+			{
+				"name": "MesesVencidas",
+				"type": "String"
+			},
+			{
+				"name": "LiberacionGasto",
+				"type": "String"
+			},
+			{
+				"name": "NCGE",
+				"type": "String"
+			},
+			{
+				"name": "DiferenciaEntre",
+				"type": "String"
+			},
+			{
+				"name": "FijosDiscrecionales",
+				"type": "String"
+			},
+			{
+				"name": "GenerarNota",
+				"type": "String"
+			},
+			{
+				"name": "Estatus",
+				"type": "String"
+			},
+			{
+				"name": "Ceco",
+				"type": "String"
+			},
+			{
+				"name": "Soporte",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,25 @@
+{
+	"name": "tr_ecomm",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_sales_ecomm",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/datascience/blobs/datastore/sales/walmart/e-commerce/",
+			"blobPathEndsWith": "BASE_MWB_2021vs2022.csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

@@ -1,0 +1,61 @@
+{
+	"name": "tg_alice_tb_mx_sc_me80fn",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_extract_tables_alice",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"m_parContainer": "dev",
+					"m_parFileNameTitle": "me80fn",
+					"m_parPathDestination": "inbound/alice/",
+					"m_parPathCopy": "inbound/alice/",
+					"m_parFileNameCopy": "ME80FN*"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-20T07:15:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						7,
+						6,
+						5,
+						4,
+						3,
+						2,
+						0
+					]
+				}
+			}
+		}
+	}
+}

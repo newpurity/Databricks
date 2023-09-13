@@ -1,0 +1,27 @@
+{
+	"name": "tr_amsmx_sales_nieto",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_common_generic_api",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"par_retailer": "nieto"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-06-03T05:00:00",
+				"timeZone": "Central Standard Time"
+			}
+		}
+	}
+}

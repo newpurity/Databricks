@@ -1,0 +1,40 @@
+{
+	"name": "tg_alice_copy_bl_to_bl_atp_files",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_copy_blob_to_blob_atp_files",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"par_Folder": "logica-app/atp",
+					"par_Archivo_Nombre": "GATP*",
+					"par_Destination_Folder": "inbound/fact/mail/atp/atp_files"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-24T18:28:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						14
+					],
+					"hours": [
+						7,
+						8,
+						15,
+						23
+					]
+				}
+			}
+		}
+	}
+}

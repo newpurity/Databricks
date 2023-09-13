@@ -1,0 +1,1593 @@
+{
+	"name": "pl_extract_api_origenes",
+	"properties": {
+		"activities": [
+			{
+				"name": "Switch Supplier",
+				"type": "Switch",
+				"dependsOn": [
+					{
+						"activity": "Set variable Fecha Hoy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@if(\n    contains(pipeline().parameters.par_url,'driv'),\n    'DRIVIN',\n    if(contains(pipeline().parameters.par_url,'e-smap'),\n    'RIVERA',\n    if(contains(pipeline().parameters.par_url,'cevisur'),\n    'CEVISUR',\n    if(contains(pipeline().parameters.par_url,'187.141.10.78'),\n    'NIETO','Default'  \n    )\n    )\n    )\n)",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "RIVERA",
+							"activities": [
+								{
+									"name": "Set variable RIVERA Ventas",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_riv_ventas",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'SRM/creative/Procesos/ApiLayouts/Ventas.php?fecha=',pipeline().parameters.par_stardate,'&fechafin=',pipeline().parameters.par_enddate)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy RIVERA Ventas",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable RIVERA Ventas",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"api-key": {
+													"value": "@pipeline().parameters.par_header_key",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_riv_ventas')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_RIVERA_VENTAS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'VENTAS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Set variable RIVERA Inventarios",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_riv_inventario",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'SRM/creative/Procesos/ApiLayouts/Inventario.php?fecha=',pipeline().parameters.par_stardate,'&fechafin=',pipeline().parameters.par_enddate)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy RIVERA Inventario",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable RIVERA Inventarios",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"api-key": {
+													"value": "@pipeline().parameters.par_header_key",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_riv_inventario')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_RIVERA_INVENTARIO_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'INVENTARIO')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "NIETO",
+							"activities": [
+								{
+									"name": "Set variable NIETO Ventas",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_nie_ventas",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'?event=VENTAS&access_token=',pipeline().parameters.par_header_key)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable NIETO Inventarios",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_nie_inventarios",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'?event=INVENTARIOS&access_token=',pipeline().parameters.par_header_key)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable NIETO Clientes",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_nie_clientes",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'?event=CLIENTES&access_token=',pipeline().parameters.par_header_key)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable NIETO Productos",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_nie_productos",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'?event=PRODUCTOS&access_token=',pipeline().parameters.par_header_key)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy NIETO Ventas",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable NIETO Ventas",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET"
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_nie_ventas')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_NIETO_VENTAS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'VENTAS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy NIETO Clientes",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable NIETO Clientes",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET"
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_nie_clientes')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_NIETO_CLIENTES_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'CLIENTES')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy NIETO Productos",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable NIETO Productos",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET"
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_nie_productos')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_NIETO_PRODUCTOS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'PRODUCTOS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy NIETO Inventario",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable NIETO Inventarios",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.23:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:05:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET"
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_nie_inventarios')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_NIETO_INVENTARIO_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'INVENTARIO')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Set variable NIETO Almacenes",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_nie_almacenes",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'?event=ALMACENES&access_token=',pipeline().parameters.par_header_key)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy NIETO Almacenes",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable NIETO Almacenes",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET"
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_nie_almacenes')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_NIETO_ALMACENES_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'ALMACENES')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						},
+						{
+							"value": "DRIVIN",
+							"activities": [
+								{
+									"name": "Execute Pipeline Drivin",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_extract_api_origenes_drivin",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"par_url": {
+												"value": "@pipeline().parameters.par_url",
+												"type": "Expression"
+											},
+											"par_stardate": {
+												"value": "@pipeline().parameters.par_stardate",
+												"type": "Expression"
+											},
+											"par_enddate": {
+												"value": "@pipeline().parameters.par_enddate",
+												"type": "Expression"
+											},
+											"par_header_content_type": {
+												"value": "@pipeline().parameters.par_header_content_type",
+												"type": "Expression"
+											},
+											"par_header_key": {
+												"value": "@pipeline().parameters.par_header_key",
+												"type": "Expression"
+											},
+											"FileName": {
+												"value": "@pipeline().parameters.FileName",
+												"type": "Expression"
+											},
+											"par_cont": {
+												"value": "@pipeline().parameters.par_cont",
+												"type": "Expression"
+											},
+											"par_folder": {
+												"value": "@pipeline().parameters.par_folder",
+												"type": "Expression"
+											},
+											"par_url_login": {
+												"value": "@pipeline().parameters.par_url_login",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "CEVISUR",
+							"activities": [
+								{
+									"name": "Set variable CEVISUR Token",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "CEVISUR Login",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_login",
+										"value": {
+											"value": "@activity('CEVISUR Login').output.token",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable CEVISUR Ventas",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_ventas",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'nestle/api/pedidos/search?startDate=',pipeline().parameters.par_stardate,'&endDate=',pipeline().parameters.par_enddate)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable CEVISUR Inventarios",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_inventario",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'nestle/api/inventario/existencias/actuales')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable CEVISUR Clientes",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_clientes",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'nestle/api/clientes/search?startDate=',pipeline().parameters.par_stardate,'&endDate=',pipeline().parameters.par_enddate)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Set variable CEVISUR Productos",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_produtos",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'nestle/api/articulos')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "CEVISUR Login",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "@pipeline().parameters.par_url_login",
+											"type": "Expression"
+										},
+										"method": "POST",
+										"headers": {
+											"Content-type": {
+												"value": "@pipeline().parameters.par_header_content_type",
+												"type": "Expression"
+											}
+										},
+										"body": {
+											"username": "0PM067",
+											"password": "5P%LZ19xeM%v"
+										}
+									}
+								},
+								{
+									"name": "Copy CEVISUR Ventas",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Ventas",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"Content-type": {
+													"value": "@pipeline().parameters.par_header_content_type",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@concat('Bearer ',variables('var_cevi_login'))",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_cevi_ventas')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_CEVISUR_VENTAS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'VENTAS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Set variable CEVISUR Facturas",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "var_cevi_facturas",
+										"value": {
+											"value": "@concat(pipeline().parameters.par_url,'nestle/api/facturas/search?startDate=',pipeline().parameters.par_stardate,'&endDate=',pipeline().parameters.par_enddate)",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Copy CEVISUR Clientes",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Clientes",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"Content-type": {
+													"value": "@pipeline().parameters.par_header_content_type",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@concat('Bearer ',variables('var_cevi_login'))",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_cevi_clientes')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_CEVISUR_CLIENTES_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'CLIENTES')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy CEVISUR Inventario",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Inventarios",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"Content-type": {
+													"value": "@pipeline().parameters.par_header_content_type",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@concat('Bearer ',variables('var_cevi_login'))",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_cevi_inventario')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_CEVISUR_INVENTARIO_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'INVENTARIO')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy CEVISUR Productos",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Productos",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"Content-type": {
+													"value": "@pipeline().parameters.par_header_content_type",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@concat('Bearer ',variables('var_cevi_login'))",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_cevi_produtos')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_CEVISUR_PRODUCTOS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'PRODUCTOS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Copy CEVISUR Facturas",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Set variable CEVISUR Facturas",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"additionalHeaders": {
+												"Content-type": {
+													"value": "@pipeline().parameters.par_header_content_type",
+													"type": "Expression"
+												},
+												"Authorization": {
+													"value": "@concat('Bearer ',variables('var_cevi_login'))",
+													"type": "Expression"
+												}
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ar_rest_api_generic_auth",
+											"type": "DatasetReference",
+											"parameters": {
+												"par_url_complete": {
+													"value": "@variables('var_cevi_facturas')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "json_api_web",
+											"type": "DatasetReference",
+											"parameters": {
+												"FileName": {
+													"value": "@concat(pipeline().parameters.FileName,'_CEVISUR_FACTURAS_',variables('var_set_fecha_hoy'),'.json')",
+													"type": "Expression"
+												},
+												"ContName": {
+													"value": "@pipeline().parameters.par_cont",
+													"type": "Expression"
+												},
+												"FoldPath": {
+													"value": "@concat(pipeline().parameters.par_folder,'FACTURAS')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					],
+					"defaultActivities": [
+						{
+							"name": "Unknown Provider",
+							"description": "Return if no URL is found.",
+							"type": "Wait",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 1
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Set variable Fecha Hoy",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_set_fecha_hoy",
+					"value": {
+						"value": "@formatDateTime(pipeline().TriggerTime,'yyyy-MM-dd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Switch Bronze Layer",
+				"type": "Switch",
+				"dependsOn": [
+					{
+						"activity": "Switch Supplier",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@if(\n    contains(pipeline().parameters.par_url,'driv'),\n    'DRIVIN',\n    if(contains(pipeline().parameters.par_url,'e-smap'),\n    'RIVERA',\n    if(contains(pipeline().parameters.par_url,'cevisur'),\n    'CEVISUR',\n    if(contains(pipeline().parameters.par_url,'187.141.10.78'),\n    'NIETO','Default'  \n    )\n    )\n    )\n)",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "NIETO",
+							"activities": [
+								{
+									"name": "Notebook Load NIETO Bronze",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/fernando.alves@br.nestle.com/DatabricksMX/0010_load_bronze_tb_mx_api_nieto",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@variables('var_set_fecha_hoy')",
+												"type": "Expression"
+											},
+											"parFileNameTitle": "NIETO",
+											"parFilePath": {
+												"value": "@concat(pipeline().parameters.par_cont,pipeline().parameters.par_folder)",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "RIVERA",
+							"activities": [
+								{
+									"name": "Notebook RIVERA Bronze",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/fernando.alves@br.nestle.com/DatabricksMX/0010_load_bronze_tb_mx_api_rivera",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@variables('var_set_fecha_hoy')",
+												"type": "Expression"
+											},
+											"parFileNameTitle": "RIVERA",
+											"parFilePath": {
+												"value": "@concat(pipeline().parameters.par_cont,pipeline().parameters.par_folder)",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "DRIVIN",
+							"activities": [
+								{
+									"name": "Notebook Load DRIVIN Bronze",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/fernando.alves@br.nestle.com/DatabricksMX/0010_load_bronze_tb_mx_api_drivin",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@variables('var_set_fecha_hoy')",
+												"type": "Expression"
+											},
+											"parFileNameTitle": "DRIVIN",
+											"parFilePath": {
+												"value": "@concat(pipeline().parameters.par_cont,pipeline().parameters.par_folder)",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "CEVISUR",
+							"activities": [
+								{
+									"name": "Notebook Load CEVISUR Bronze",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/fernando.alves@br.nestle.com/DatabricksMX/0010_load_bronze_tb_mx_api_cevisur",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@variables('var_set_fecha_hoy')",
+												"type": "Expression"
+											},
+											"parFileNameTitle": "CEVISUR",
+											"parFilePath": {
+												"value": "@concat(pipeline().parameters.par_cont,pipeline().parameters.par_folder)",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_url": {
+				"type": "string"
+			},
+			"par_stardate": {
+				"type": "string"
+			},
+			"par_enddate": {
+				"type": "string"
+			},
+			"par_header_content_type": {
+				"type": "string",
+				"defaultValue": "application/json"
+			},
+			"par_header_key": {
+				"type": "string"
+			},
+			"FileName": {
+				"type": "string",
+				"defaultValue": "JSON"
+			},
+			"par_cont": {
+				"type": "string",
+				"defaultValue": "dev"
+			},
+			"par_folder": {
+				"type": "string",
+				"defaultValue": "/inbound/ext_api_files_new/PROVIDER/"
+			},
+			"par_url_login": {
+				"type": "string",
+				"defaultValue": "https://central.cevisur.com.mx:8443/nestle/api/auth/login"
+			}
+		},
+		"variables": {
+			"var_riv_ventas": {
+				"type": "String"
+			},
+			"var_nie_ventas": {
+				"type": "String"
+			},
+			"var_driv": {
+				"type": "String"
+			},
+			"var_supplier": {
+				"type": "String"
+			},
+			"var_cevi_login": {
+				"type": "String"
+			},
+			"var_cevi_ventas": {
+				"type": "String"
+			},
+			"var_cevi_inventario": {
+				"type": "String"
+			},
+			"var_cevi_clientes": {
+				"type": "String"
+			},
+			"var_cevi_produtos": {
+				"type": "String"
+			},
+			"var_riv_inventario": {
+				"type": "String"
+			},
+			"var_nie_inventarios": {
+				"type": "String"
+			},
+			"var_nie_clientes": {
+				"type": "String"
+			},
+			"var_nie_productos": {
+				"type": "String"
+			},
+			"var_set_fecha_hoy": {
+				"type": "String"
+			},
+			"var_cevi_facturas": {
+				"type": "String"
+			},
+			"var_url_default": {
+				"type": "String"
+			},
+			"var_driv_direccion": {
+				"type": "String"
+			},
+			"var_driv_rutas": {
+				"type": "String"
+			},
+			"var_driv_vehiculos": {
+				"type": "String"
+			},
+			"var_driv_grupo_vehiculos": {
+				"type": "String"
+			},
+			"var_nie_almacenes": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes/Utils/API_Web"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,315 @@
+{
+	"name": "pl_master_extract_catalogs",
+	"properties": {
+		"activities": [
+			{
+				"name": "Extract Inbound Bronze",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ReadCSVConfing",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ReadCSVConfing').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "pl_common_shp",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_common_shp",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"parEnvironment": {
+										"value": "@item().Enviroment",
+										"type": "Expression"
+									},
+									"parAdlsDestinationFolder": {
+										"value": "@item().AdlsDestinationFolder",
+										"type": "Expression"
+									},
+									"parFileName": {
+										"value": "@item().FileName",
+										"type": "Expression"
+									},
+									"parShpSiteUrl": "https://nestle.sharepoint.com/teams/nmex-supplychain-alice",
+									"parShpRelativeFolderPath": "Shared Documents",
+									"parModifiedLastNHours": "1",
+									"parClientID": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientid-nmex-supplychain-alice/?api-version=7.0",
+									"parClientSecret": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientsecret-nmex-supplychain-alice/?api-version=7.0",
+									"par_UtcNowVar": {
+										"value": "@variables('varUtcNow')",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Get Metadata1",
+							"type": "GetMetadata",
+							"dependsOn": [
+								{
+									"activity": "pl_common_shp",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_sc_nmex_devorigmx_generic",
+									"type": "DatasetReference",
+									"parameters": {
+										"par_container": {
+											"value": "@item().Enviroment",
+											"type": "Expression"
+										},
+										"par_diretorio": "@item().AdlsDestinationFolder",
+										"par_arquivo": "@item().FileName"
+									}
+								},
+								"fieldList": [
+									"lastModified",
+									"itemName"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							}
+						},
+						{
+							"name": "If Condition1",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@equals(formatDateTime(activity('Get Metadata1').output.lastModified,'yyyy-MM-dd'),formatDateTime(variables('varUtcNow'),'yyyy-MM-dd'))\n",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Catalogs Notebook",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "pl_load_catalogs_notebook",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"parDateTimeUTC": {
+													"value": "@variables('varUtcNow')",
+													"type": "Expression"
+												},
+												"parNotebook": {
+													"value": "@item().Notebook",
+													"type": "Expression"
+												},
+												"parArchivoNombreAtual": {
+													"value": "@item().FileName",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "Send Email Error Sharepoint to blob",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "pl_common_shp",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_send_email_notification_alice",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_conteudo_email": "Ocurrió un error en Pipeline al cargar el catalogo de Sharepoint nmex-supplychain-alice al blob, validar formato del archivo",
+									"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx;valeria.camacho1@mx.nestle.com",
+									"par_project_name": "ALICE",
+									"par_status_msg": "Error",
+									"par_etapa": {
+										"value": "@item().FileName",
+										"type": "Expression"
+									},
+									"par_fecha": {
+										"value": "@variables('varUtcNow')",
+										"type": "Expression"
+									},
+									"par_runid": {
+										"value": "@pipeline().RunId",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Send Email Error Catalogs Notebooks",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "If Condition1",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_send_email_notification_alice",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_conteudo_email": "Ocurrió un error en Pipeline al cargar el catalogo en los Notebooks de databricks",
+									"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx;valeria.camacho1@mx.nestle.com",
+									"par_project_name": "ALICE",
+									"par_status_msg": "Error",
+									"par_etapa": {
+										"value": "@item().FileName",
+										"type": "Expression"
+									},
+									"par_fecha": {
+										"value": "@variables('varUtcNow')",
+										"type": "Expression"
+									},
+									"par_runid": {
+										"value": "@pipeline().RunId",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "ReadCSVConfing",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "utcNowFolder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adsl2_origenesmx_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "catalogs_automatitation",
+							"par_filename": "rutas.csv",
+							"par_delimeter": ","
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "utcNowFolder",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varUtcNow",
+					"value": {
+						"value": "@utcnow()",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"varFileName": {
+				"type": "String"
+			},
+			"varAdlsDestinationFolder": {
+				"type": "String"
+			},
+			"varEnviroment": {
+				"type": "String"
+			},
+			"varUtcNow": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

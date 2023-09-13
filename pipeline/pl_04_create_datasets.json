@@ -1,0 +1,93 @@
+{
+	"name": "pl_04_create_datasets",
+	"properties": {
+		"activities": [
+			{
+				"name": "create_datasets",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sl_siweb/execution/400_materialize_views",
+					"baseParameters": {
+						"par_IdClient": {
+							"value": "@pipeline().parameters.par_IdClient",
+							"type": "Expression"
+						},
+						"par_IdLog": {
+							"value": "@pipeline().parameters.par_IdLog",
+							"type": "Expression"
+						},
+						"par_MailList": {
+							"value": "@pipeline().parameters.par_MailList",
+							"type": "Expression"
+						},
+						"par_User": {
+							"value": "@pipeline().parameters.par_User",
+							"type": "Expression"
+						},
+						"par_DynamicInformationTypesList": {
+							"value": "@pipeline().parameters.par_DynamicInformationTypesList",
+							"type": "Expression"
+						},
+						"par_SqlViewsList": {
+							"value": "@pipeline().parameters.par_SqlViewsList",
+							"type": "Expression"
+						},
+						"par_CustomViewsList": {
+							"value": "@pipeline().parameters.par_CustomViewsList",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"par_IdClient": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"par_IdLog": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_MailList": {
+				"type": "string",
+				"defaultValue": "ygarcia@thestoreintelligence.com"
+			},
+			"par_User": {
+				"type": "string",
+				"defaultValue": "ygarcia"
+			},
+			"par_DynamicInformationTypesList": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_SqlViewsList": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_CustomViewsList": {
+				"type": "string",
+				"defaultValue": "45,46"
+			}
+		},
+		"folder": {
+			"name": "Siweb"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

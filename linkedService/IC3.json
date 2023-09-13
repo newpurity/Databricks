@@ -1,0 +1,16 @@
+{
+	"name": "IC3",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "integrated security=False;encrypt=True;connection timeout=30;data source=nams-pp-ic3-usea-sqs.database.windows.net;initial catalog=MXIC3PREPROD-sqd;user id=Adfcont",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI1ZWNkNGJhNy01Y2U3LTQ4ZmQtOTdlZS1jYTM0YTdiZmRjZmIiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "nmex-pp-origenesmx-ithub-ir",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,328 @@
+{
+	"name": "pl_load_tablas_notebook_alice",
+	"properties": {
+		"activities": [
+			{
+				"name": "Switch Table Load",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.parTableName",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "lx03",
+							"activities": [
+								{
+									"name": "Load LX03",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_lx03",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "lt23",
+							"activities": [
+								{
+									"name": "Load LT23",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_lt23",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "otr",
+							"activities": [
+								{
+									"name": "Load OTR",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_otr",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "contabilizado",
+							"activities": [
+								{
+									"name": "Load OTR Contabilizado",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_otr_contabilizado",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "mb5t",
+							"activities": [
+								{
+									"name": "Load MB5T",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_mb5t",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "me2n",
+							"activities": [
+								{
+									"name": "Load ME2N",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_me2n",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "vl06f_nac",
+							"activities": [
+								{
+									"name": "Load VL06F_NAC",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_vl06f_nac",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "vl06f_con",
+							"activities": [
+								{
+									"name": "Load VL06F_CON",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_vl06f_con",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "atp",
+							"activities": [
+								{
+									"name": "Load ATP",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_atp",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "trm_log",
+							"activities": [
+								{
+									"name": "Load TRM_LOG",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_trm_log",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "me80fn",
+							"activities": [
+								{
+									"name": "Load ME80FN",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_me80fn",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "ageing",
+							"activities": [
+								{
+									"name": "Load AGEING",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_common_tabla_ageing",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"parFechaAtual_Carga": {
+												"value": "@pipeline().parameters.parFechaAtual_Carga",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"parFechaAtual_Carga": {
+				"type": "string"
+			},
+			"parTableName": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"varPathNotebook": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:30Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

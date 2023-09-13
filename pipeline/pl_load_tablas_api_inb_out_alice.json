@@ -1,0 +1,591 @@
+{
+	"name": "pl_load_tablas_api_inb_out_alice",
+	"properties": {
+		"activities": [
+			{
+				"name": "Switch1",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.parFechaTabla",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "INBOUND_HISTORICO",
+							"activities": [
+								{
+									"name": "Carga Bronze INBOUND HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_historico/execution/0010_load_bronze_tb_mx_sc_inbound_historico",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@pipeline().parameters.parFechaExec",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Silver INBOUND HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Bronze INBOUND HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_historico/execution/0020_load_silver_tb_mx_sc_inbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Gold INBOUND HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Silver INBOUND HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_historico/execution/0030_load_gold_tb_mx_sc_inbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Dataset INBOUND HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Gold INBOUND HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_historico/execution/0040_load_dataset_tb_mx_sc_inbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Datascience INBOUND HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Dataset INBOUND HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_historico/execution/0050_load_datascience_tb_mx_sc_inbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "INBOUND_LIVE",
+							"activities": [
+								{
+									"name": "Carga Bronze INBOUND LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_live/execution/0010_load_bronze_tb_mx_sc_inbound_live",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@pipeline().parameters.parFechaExec",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Silver INBOUND LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Bronze INBOUND LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_live/execution/0020_load_silver_tb_mx_sc_inbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Gold INBOUND LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Silver INBOUND LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_live/execution/0030_load_gold_tb_mx_sc_inbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Dataset INBOUND LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Gold INBOUND LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_live/execution/0040_load_dataset_tb_mx_sc_inbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Datascience INBOUND LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Dataset INBOUND LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_inbound_live/execution/0050_load_datascience_tb_mx_sc_inbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "OUTBOUND_HISTORICO",
+							"activities": [
+								{
+									"name": "Carga Bronze OUTBOUND_HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_historico/execution/0010_load_bronze_tb_mx_sc_outbound_historico",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@pipeline().parameters.parFechaExec",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Silver OUTBOUND_HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Bronze OUTBOUND_HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_historico/execution/0020_load_silver_tb_mx_sc_outbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Gold OUTBOUND_HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Silver OUTBOUND_HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_historico/execution/0030_load_gold_tb_mx_sc_outbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Dataset OUTBOUND_HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Gold OUTBOUND_HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_historico/execution/0040_load_dataset_tb_mx_sc_outbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Datascience OUTBOUND_HISTORICO",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Dataset OUTBOUND_HISTORICO",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_historico/execution/0050_load_datascience_tb_mx_sc_outbound_historico"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "OUTBOUND_LIVE",
+							"activities": [
+								{
+									"name": "Carga Bronze OUTBOUND_LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_live/execution/0010_load_bronze_tb_mx_sc_outbound_live",
+										"baseParameters": {
+											"parFechaExecution": {
+												"value": "@pipeline().parameters.parFechaExec",
+												"type": "Expression"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Silver OUTBOUND_LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Bronze OUTBOUND_LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_live/execution/0020_load_silver_tb_mx_sc_outbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Gold OUTBOUND_LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Silver OUTBOUND_LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_live/execution/0030_load_gold_tb_mx_sc_outbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Dataset OUTBOUND_LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Gold OUTBOUND_LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_live/execution/0040_load_dataset_tb_mx_sc_outbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								},
+								{
+									"name": "Carga Datascience OUTBOUND_LIVE",
+									"type": "DatabricksNotebook",
+									"dependsOn": [
+										{
+											"activity": "Carga Dataset OUTBOUND_LIVE",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "01:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/rafael.medeiros2@br.nestle.com/DatabricksMX/sl_supply_alice/facts/tb_mx_sc_outbound_live/execution/0050_load_datascience_tb_mx_sc_outbound_live"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"parFechaExec": {
+				"type": "string"
+			},
+			"parFechaTabla": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

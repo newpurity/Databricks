@@ -1,0 +1,140 @@
+{
+	"name": "pl_load_catalogs_notebook",
+	"properties": {
+		"activities": [
+			{
+				"name": "Load catalogs Silver layer_copy1",
+				"description": "Execute load silver for all catalogs obtained from lookup activity",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat('/Repos/yair.atristain@mx.nestle.com/DatabricksMX/sl_supply_alice/catalogs/',pipeline().parameters.parNotebook,'/execution/','0010_sc_mx_silver_',pipeline().parameters.parNotebook)",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"parArchivoNombreAtual": {
+							"value": "@pipeline().parameters.parArchivoNombreAtual",
+							"type": "Expression"
+						},
+						"parDateTimeUTC": {
+							"value": "@pipeline().parameters.parDateTimeUTC",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Load catalogs Gold layer",
+				"description": "Execute load silver for all catalogs obtained from lookup activity",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Load catalogs Silver layer_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat('/Repos/yair.atristain@mx.nestle.com/DatabricksMX/sl_supply_alice/catalogs/',pipeline().parameters.parNotebook,'/execution/','0020_sc_mx_gold_',pipeline().parameters.parNotebook)",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"parArchivoNombreAtual": {
+							"value": "@pipeline().parameters.parArchivoNombreAtual",
+							"type": "Expression"
+						},
+						"parDateTimeUTC": {
+							"value": "@pipeline().parameters.parDateTimeUTC",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Load catalogs Gold Datascience",
+				"description": "Execute load silver for all catalogs obtained from lookup activity",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Load catalogs Gold layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat('/Repos/yair.atristain@mx.nestle.com/DatabricksMX/sl_supply_alice/catalogs/',pipeline().parameters.parNotebook,'/execution/','0030_datascience_load_gold_tb_mx_sc_',pipeline().parameters.parNotebook)",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"parArchivoNombreAtual": {
+							"value": "@pipeline().parameters.parArchivoNombreAtual",
+							"type": "Expression"
+						},
+						"parDateTimeUTC": {
+							"value": "@pipeline().parameters.parDateTimeUTC",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"parDateTimeUTC": {
+				"type": "string"
+			},
+			"parNotebook": {
+				"type": "string"
+			},
+			"parArchivoNombreAtual": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

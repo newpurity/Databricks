@@ -1,0 +1,169 @@
+{
+	"name": "pl_extract_move_to_csv_reference",
+	"properties": {
+		"activities": [
+			{
+				"name": "View Archivo Parametro",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Get Fecha Actual",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adsl2_origenesmx_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "inbound/alice/alice_config",
+							"par_filename": "LX03_ARCHIVOS_LIST.csv",
+							"par_delimeter": ","
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Get Fecha Actual",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varFechaAtual",
+					"value": {
+						"value": "@formatDateTime(utcnow(),'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "View Archivo Parametro",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('View Archivo Parametro').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "BinarySource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true
+									},
+									"formatSettings": {
+										"type": "BinaryReadSettings"
+									}
+								},
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_adsl2_origenesmx_binary",
+									"type": "DatasetReference",
+									"parameters": {
+										"par_directory": "inbound/alice",
+										"par_filename": {
+											"value": "@concat(item().nombre_archivo,variables('varFechaAtual'),'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_adsl2_origenesmx_binary",
+									"type": "DatasetReference",
+									"parameters": {
+										"par_directory": {
+											"value": "@concat('inbound/alice/',variables('varFechaAtual'),'_LX03')",
+											"type": "Expression"
+										},
+										"par_filename": {
+											"value": "@concat(item().nombre_archivo,variables('varFechaAtual'),'.csv')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"varFilesCopy": {
+				"type": "Array"
+			},
+			"varFilesNameCopy": {
+				"type": "Array"
+			},
+			"varFechaAtual": {
+				"type": "String"
+			},
+			"varArrayNombreAndFecha": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

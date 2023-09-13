@@ -1,0 +1,13 @@
+{
+	"name": "nmex-origmx-dh-usw2-ithub-shared-ir",
+	"properties": {
+		"type": "SelfHosted",
+		"description": "Shared SH-IR to enable connectivity with shared sources except SAP MONO",
+		"typeProperties": {
+			"linkedInfo": {
+				"resourceId": "/subscriptions/65538c2c-2fb6-4d89-8819-b3a38f8c63e2/resourcegroups/nams-pp-bsimaster-adi-usea-rgp/providers/Microsoft.DataFactory/factories/nams-pp-bsimaster-adi-usea-adf/integrationruntimes/nams-pp-bsimgd-shared-usea-ir",
+				"authorizationType": "Rbac"
+			}
+		}
+	}
+}

@@ -1,0 +1,22 @@
+{
+	"name": "GilSalinas_NestleVeterinarios_Clientes_origin",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NESTLE_VETERINARIOS"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": "Clientes_20220816.DAT.txt",
+				"folderPath": "/nestlevet"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

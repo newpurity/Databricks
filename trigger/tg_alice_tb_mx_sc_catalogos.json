@@ -1,0 +1,34 @@
+{
+	"name": "tg_alice_tb_mx_sc_catalogos",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_extract_catalogs",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-20T07:15:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						15
+					],
+					"hours": [
+						7,
+						12,
+						18
+					]
+				}
+			}
+		}
+	}
+}

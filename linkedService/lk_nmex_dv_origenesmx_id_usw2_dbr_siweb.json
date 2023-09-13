@@ -1,0 +1,20 @@
+{
+	"name": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-3607946472679900.0.azuredatabricks.net/",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "lk_nmexdvorigmxdhusw2key",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "nmex-pp-origenesmx-id-usw2-dbr-token-siweb"
+			},
+			"existingClusterId": "0130-211945-mcv1mi12"
+		}
+	}
+}

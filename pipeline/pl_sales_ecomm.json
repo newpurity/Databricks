@@ -1,0 +1,87 @@
+{
+	"name": "pl_sales_ecomm",
+	"properties": {
+		"activities": [
+			{
+				"name": "Extract_Ecomm",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_ecomm/execution/0010.Ecomm_Hist_Import"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Transform_Ecomm",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Extract_Ecomm",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_ecomm/execution/0011.Ecomm_Hist_Transform"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "View_Ecomm",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Transform_Ecomm",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_ecomm/execution/0012.Ecomm_Hist_View"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_ventas_test"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

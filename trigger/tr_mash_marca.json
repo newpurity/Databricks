@@ -1,0 +1,26 @@
+{
+	"name": "tr_mash_marca",
+	"properties": {
+		"description": "Trigger que desencadena cada que se actualiza el csv con la info de mash a marca",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_sales_mash",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/datascience/blobs/datastore/sales/mash/",
+			"blobPathEndsWith": "data_marcas.csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

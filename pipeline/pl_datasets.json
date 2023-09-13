@@ -1,0 +1,157 @@
+{
+	"name": "pl_datasets",
+	"properties": {
+		"activities": [
+			{
+				"name": "Switch1",
+				"type": "Switch",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@pipeline().parameters.Area",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "Catalogs",
+							"activities": [
+								{
+									"name": "Notebook1",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/Production/DatabricksMX/sl_palantir_copy/000_materialize_catalogs"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "Nesmovil",
+							"activities": [
+								{
+									"name": "Notebook2",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/Production/DatabricksMX/sl_palantir_copy/003_materialize_nesmovil"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "Sindicadas",
+							"activities": [
+								{
+									"name": "Notebook5",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/Production/DatabricksMX/sl_palantir_copy/005_materialize_sindicadas_unificadas"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "SellIn",
+							"activities": [
+								{
+									"name": "Notebook3",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/Production/DatabricksMX/sl_palantir_copy/001_materialize_sellin"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						},
+						{
+							"value": "SellOut",
+							"activities": [
+								{
+									"name": "Notebook4",
+									"type": "DatabricksNotebook",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"notebookPath": "/Repos/Production/DatabricksMX/sl_palantir_copy/002_materialize_sellout"
+									},
+									"linkedServiceName": {
+										"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"Area": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_palantir"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

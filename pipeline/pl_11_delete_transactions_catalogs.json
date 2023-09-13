@@ -1,0 +1,165 @@
+{
+	"name": "pl_11_delete_transactions_catalogs",
+	"properties": {
+		"activities": [
+			{
+				"name": "DeleteTxCat",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sv_utilities/functions/114_delete_data",
+					"baseParameters": {
+						"par_Table": {
+							"value": "@pipeline().parameters.par_Table",
+							"type": "Expression"
+						},
+						"par_CalendarDay": {
+							"value": "@pipeline().parameters.par_CalendarDay",
+							"type": "Expression"
+						},
+						"par_CreationDate": {
+							"value": "@pipeline().parameters.par_CreationDate",
+							"type": "Expression"
+						},
+						"par_EndDate": {
+							"value": "@pipeline().parameters.par_EndDate",
+							"type": "Expression"
+						},
+						"par_IdCustomer": {
+							"value": "@pipeline().parameters.par_IdCustomer",
+							"type": "Expression"
+						},
+						"par_IdDynamicInformationType": {
+							"value": "@pipeline().parameters.par_IdDynamicInformationType",
+							"type": "Expression"
+						},
+						"par_IdFileMapping": {
+							"value": "@pipeline().parameters.par_IdFileMapping",
+							"type": "Expression"
+						},
+						"par_IdLog": {
+							"value": "@pipeline().parameters.par_IdLog",
+							"type": "Expression"
+						},
+						"par_IdProducts": {
+							"value": "@pipeline().parameters.par_IdProducts",
+							"type": "Expression"
+						},
+						"par_IdProductsCategoriesSegmentation": {
+							"value": "@pipeline().parameters.par_IdProductsCategoriesSegmentation",
+							"type": "Expression"
+						},
+						"par_IdRetailer": {
+							"value": "@pipeline().parameters.par_IdRetailer",
+							"type": "Expression"
+						},
+						"par_IdStores": {
+							"value": "@pipeline().parameters.par_IdStores",
+							"type": "Expression"
+						},
+						"par_Reason": {
+							"value": "@pipeline().parameters.par_Reason",
+							"type": "Expression"
+						},
+						"par_StartDate": {
+							"value": "@pipeline().parameters.par_StartDate",
+							"type": "Expression"
+						},
+						"par_TypeCalendarDay": {
+							"value": "@pipeline().parameters.par_TypeCalendarDay",
+							"type": "Expression"
+						},
+						"par_User": {
+							"value": "@pipeline().parameters.par_User",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"par_Table": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdCustomer": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdRetailer": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdDynamicInformationType": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdFileMapping": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdProducts": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdProductsCategoriesSegmentation": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdStores": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_TypeCalendarDay": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_StartDate": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_EndDate": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_CalendarDay": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_CreationDate": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_Reason": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdLog": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_User": {
+				"type": "string",
+				"defaultValue": "-"
+			}
+		},
+		"folder": {
+			"name": "Siweb"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:22Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

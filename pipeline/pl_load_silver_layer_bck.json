@@ -1,0 +1,133 @@
+{
+	"name": "pl_load_silver_layer_bck",
+	"properties": {
+		"activities": [
+			{
+				"name": "Load Silver Layer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/ricardo.perez1@mx.nestle.com/DatabricksMX/sl_ndg/fact/fact_master_plan/execution/0010_ndg_fact_master_plan_load_silver_layer",
+					"baseParameters": {
+						"adf_csvFile": {
+							"value": "@activity('List Inbound Files').output.childItems[0].name",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "List Inbound Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_adsl2_origenesmx_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "inbound/fact/ndg",
+							"par_filename": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Archive Inbound Files",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Load Silver Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": false,
+							"deleteFilesAfterCompletion": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "BinarySink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_adsl2_origenesmx_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "inbound/fact/ndg",
+							"par_filename": "@activity('List Inbound Files').output.childItems[0].name"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_adsl2_origenesmx_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "archive/fact/ndg",
+							"par_filename": "@activity('List Inbound Files').output.childItems[0].name"
+						}
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "amsmx_ndg"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

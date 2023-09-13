@@ -1,0 +1,25 @@
+{
+	"name": "DestinationDataset_ore",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "mayoreodigital"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "inbound/mayoreo_digital/liquidaciones",
+				"container": "dev"
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

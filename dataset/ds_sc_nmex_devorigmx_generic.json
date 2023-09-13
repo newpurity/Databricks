@@ -1,0 +1,40 @@
+{
+	"name": "ds_sc_nmex_devorigmx_generic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_origenesmx",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"par_container": {
+				"type": "string"
+			},
+			"par_diretorio": {
+				"type": "string"
+			},
+			"par_arquivo": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().par_arquivo",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().par_diretorio",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().par_container",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

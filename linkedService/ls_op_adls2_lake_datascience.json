@@ -1,0 +1,15 @@
+{
+	"name": "ls_op_adls2_lake_datascience",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://nmexpporigdsdh79sta.dfs.core.windows.net/"
+		},
+		"connectVia": {
+			"referenceName": "nmex-pp-origenesmx-ithub-ir",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

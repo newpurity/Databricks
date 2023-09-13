@@ -1,0 +1,16 @@
+{
+	"name": "AzureBlobStorage_MayoreoDigital_Dev",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobStorage",
+		"typeProperties": {
+			"serviceEndpoint": "https://nmexpporigdsdh79sta.blob.core.windows.net/",
+			"accountKind": "StorageV2"
+		},
+		"connectVia": {
+			"referenceName": "nmex-origmx-dh-usw2-ithub-shared-ir",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

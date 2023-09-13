@@ -1,0 +1,41 @@
+{
+	"name": "json_api_web",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_datascience",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FileName": {
+				"type": "string"
+			},
+			"ContName": {
+				"type": "string"
+			},
+			"FoldPath": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().FoldPath",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().ContName",
+					"type": "Expression"
+				}
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

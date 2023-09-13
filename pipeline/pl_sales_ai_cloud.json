@@ -1,0 +1,168 @@
+{
+	"name": "pl_sales_ai_cloud",
+	"properties": {
+		"activities": [
+			{
+				"name": "Migracion vistas",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0017.Migracion_vistas_WM"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Transaccional - Exhibiciones",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Migracion vistas",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0018.WalmartTrans + Exhibiciones"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Forecast CPFR",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Transaccional - Exhibiciones",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0019.Forecast_Semanal_Walmart_[CPFR]"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Forecast Formato-MG",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Forecast CPFR",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0020.Forecast_Semanal_WM_formato-material_Prophet_v2"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Vista Estatal",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Calculo universos",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0021.State_View_AI_Cloud"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Calculo universos",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Forecast Formato-MG",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/lucio.montelongo@mx.nestle.com/DatabricksMX/sl_walmart/execution/0022.Calculo_de_universos"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"folder": {
+			"name": "amsmx_ventas_test"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:23Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,162 @@
+{
+	"name": "IC3_SQL_TO_LAKE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "IC3PROD",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "IdTradeActivity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "NumeroTradeActivity",
+				"type": "varchar"
+			},
+			{
+				"name": "NombreTradeActivity",
+				"type": "varchar"
+			},
+			{
+				"name": "AcuerdosWBSCliente",
+				"type": "varchar"
+			},
+			{
+				"name": "TipoTA",
+				"type": "varchar"
+			},
+			{
+				"name": "StatusSAP",
+				"type": "varchar"
+			},
+			{
+				"name": "GastoEfectivo",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "Compromiso",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "Saldo",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "Nodo4",
+				"type": "varchar"
+			},
+			{
+				"name": "Campaña",
+				"type": "varchar"
+			},
+			{
+				"name": "Tactica",
+				"type": "varchar"
+			},
+			{
+				"name": "TipoGasto",
+				"type": "varchar"
+			},
+			{
+				"name": "Complementaria",
+				"type": "varchar"
+			},
+			{
+				"name": "Payer",
+				"type": "varchar"
+			},
+			{
+				"name": "OrgVentas",
+				"type": "varchar"
+			},
+			{
+				"name": "OrganizacionVenta",
+				"type": "varchar"
+			},
+			{
+				"name": "NumCanalDistribucion",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "CanalDistribucio",
+				"type": "varchar"
+			},
+			{
+				"name": "FechaInicio",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "FechaFinal",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "FechaCreacion",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "FechaAprobacion",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "AprobadorporMonto",
+				"type": "varchar"
+			},
+			{
+				"name": "Implementador",
+				"type": "varchar"
+			},
+			{
+				"name": "AbiertaCerrada",
+				"type": "varchar"
+			},
+			{
+				"name": "DeptoPropone",
+				"type": "varchar"
+			},
+			{
+				"name": "MesesVencidas",
+				"type": "varchar"
+			},
+			{
+				"name": "Estatus",
+				"type": "varchar"
+			},
+			{
+				"name": "Soporte",
+				"type": "varchar"
+			},
+			{
+				"name": "UserSalesCopilot",
+				"type": "varchar"
+			},
+			{
+				"name": "BuildingBlock",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "VW_TradeHeaderAdi"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

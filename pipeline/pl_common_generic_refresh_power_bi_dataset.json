@@ -1,0 +1,289 @@
+{
+	"name": "pl_common_generic_refresh_power_bi_dataset",
+	"properties": {
+		"description": "Generic pipeline to update power bi datasets",
+		"activities": [
+			{
+				"name": "Key Vault - TenantID",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/TENANTID-MxAppPowerBiApi/?api-version=7.0",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"body": {
+						"simple": "body"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Key Vault - ClientID",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/ClientID-MxAppPowerBiApi/?api-version=7.0",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"body": {
+						"simple": "body"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Key Vault - C Secret",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/APP-MxAppPowerBiApi/?api-version=7.0",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"body": {
+						"simple": "body"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "Get AAD Token",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Key Vault - TenantID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Key Vault - ClientID",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Key Vault - C Secret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://login.microsoftonline.com/',activity('Key Vault - TenantID').output.value,'/oauth2/token')",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials&resource=https://analysis.windows.net/powerbi/api&client_id=',activity('Key Vault - ClientID').output.value,'&client_secret=',encodeUriComponent(activity('Key Vault - C Secret').output.value))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Call dataset refresh",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Get AAD Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.par_id_workspace,'/datasets/',pipeline().parameters.par_id_dataset,'/refreshes')",
+						"type": "Expression"
+					},
+					"method": "POST",
+					"headers": {
+						"Authorization": {
+							"value": "@concat(string(activity('Get AAD Token').output.token_type),' ',string(activity('Get AAD Token').output.access_token))",
+							"type": "Expression"
+						}
+					},
+					"body": {
+						"notifyOption": "NoNotification"
+					}
+				}
+			},
+			{
+				"name": "Until dataset refresh completion",
+				"type": "Until",
+				"dependsOn": [
+					{
+						"activity": "Call dataset refresh",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@not(equals(first(json(string(activity('Get dataset refresh status').output)).value).status,'Unknown'))",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Wait 30 seconds",
+							"type": "Wait",
+							"dependsOn": [
+								{
+									"activity": "Refresh AAD Token",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"waitTimeInSeconds": 30
+							}
+						},
+						{
+							"name": "Get dataset refresh status",
+							"type": "WebActivity",
+							"dependsOn": [
+								{
+									"activity": "Wait 30 seconds",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": true
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.par_id_workspace,'/datasets/',pipeline().parameters.par_id_dataset,'/refreshes?$top=1')",
+									"type": "Expression"
+								},
+								"method": "GET",
+								"headers": {
+									"Authorization": {
+										"value": "@concat(string(activity('Refresh AAD Token').output.token_type),' ',string(activity('Refresh AAD Token').output.access_token))",
+										"type": "Expression"
+									},
+									"Content-Type": "application/json"
+								}
+							}
+						},
+						{
+							"name": "Refresh AAD Token",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": true,
+								"secureInput": true
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@concat('https://login.microsoftonline.com/',activity('Key Vault - TenantID').output.value,'/oauth2/token')",
+									"type": "Expression"
+								},
+								"method": "POST",
+								"headers": {
+									"Content-Type": "application/x-www-form-urlencoded"
+								},
+								"body": {
+									"value": "@concat('grant_type=client_credentials&resource=https://analysis.windows.net/powerbi/api&client_id=',activity('Key Vault - ClientID').output.value,'&client_secret=',encodeUriComponent(activity('Key Vault - C Secret').output.value))",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"timeout": "0.03:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"par_id_workspace": {
+				"type": "string"
+			},
+			"par_id_dataset": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"ProcessingErrors": {
+				"type": "Boolean"
+			}
+		},
+		"folder": {
+			"name": "amsla_data-load-tool"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

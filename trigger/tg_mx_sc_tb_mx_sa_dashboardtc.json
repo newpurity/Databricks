@@ -1,0 +1,17 @@
+{
+	"name": "tg_mx_sc_tb_mx_sa_dashboardtc",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2023-04-19T19:18:00Z",
+				"timeZone": "UTC"
+			}
+		}
+	}
+}

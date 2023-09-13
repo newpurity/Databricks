@@ -1,0 +1,48 @@
+{
+	"name": "tg_pl_alice_fact_historical",
+	"properties": {
+		"description": "Ejecuta pl_schedule_extract_tables_alice_historical tablas que corren cada hora \nOccurs every day every 1 hour(s) between 02:30:00 a. m. and 12:30:00 a. m..",
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-13T17:43:00Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						6,
+						5,
+						4,
+						3,
+						2,
+						0
+					]
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,61 @@
+{
+	"name": "pl_send_email_notification_alice",
+	"properties": {
+		"activities": [
+			{
+				"name": "URL HTTP POST",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-00-nams-pr-baisein-wrpa5gaht7mno-internal.westus2.environments.microsoftazurelogicapps.net:443/workflows/ceca053c86ba428e9c4e9d71134fa0c9/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=tMCGaXFb_ItzhjbxFqTzY1HvqDexzZZt75G3Eq0gzc4",
+					"connectVia": {
+						"referenceName": "nmex-pp-origenesmx-ithub-ir",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"body": {
+						"value": "@concat(\n    '{\n    \"conteudo-email\":\"',pipeline().parameters.par_conteudo_email,'\",\n    \"email-list\":\"',pipeline().parameters.par_lista_email,'\",\n        \"project-name\":\"',pipeline().parameters.par_project_name,'\",\n        \"status-msg\":\"',pipeline().parameters.par_status_msg,'\",\n        \"etapa\": \"',pipeline().parameters.par_etapa,'\",\n        \"fecha\": \"',pipeline().parameters.par_fecha,'\",\n        \"runid\": \"', pipeline().parameters.par_runid, ' \"\n        }')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_conteudo_email": {
+				"type": "string"
+			},
+			"par_lista_email": {
+				"type": "string"
+			},
+			"par_project_name": {
+				"type": "string"
+			},
+			"par_status_msg": {
+				"type": "string"
+			},
+			"par_etapa": {
+				"type": "string"
+			},
+			"par_fecha": {
+				"type": "string"
+			},
+			"par_runid": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

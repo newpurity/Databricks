@@ -1,0 +1,148 @@
+{
+	"name": "pl_delete_rpa_files_inbound",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Carpeta",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_sc_nmex_devorigmx_generic",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_container": {
+								"value": "@pipeline().parameters.par_container",
+								"type": "Expression"
+							},
+							"par_diretorio": {
+								"value": "@pipeline().parameters.par_diretorio",
+								"type": "Expression"
+							},
+							"par_arquivo": {
+								"value": "@pipeline().parameters.par_arquivo",
+								"type": "Expression"
+							}
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Filter Archivos Hoy",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Carpeta",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Carpeta').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(item().type,'File')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach Copy",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter Archivos Hoy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter Archivos Hoy').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Delete Files",
+							"type": "Delete",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_adsl2_origenesmx_binary",
+									"type": "DatasetReference",
+									"parameters": {
+										"par_directory": {
+											"value": "@pipeline().parameters.par_diretorio",
+											"type": "Expression"
+										},
+										"par_filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								"enableLogging": false,
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_container": {
+				"type": "string"
+			},
+			"par_diretorio": {
+				"type": "string"
+			},
+			"par_arquivo": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,42 @@
+{
+	"name": "tg_tb_mx_sc_alice_api_historical_inbound",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_extract_api_tablas_inb_outb",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"par_search_type": "FIN_DESCARGA",
+					"par_url": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1",
+					"par_folder": "/inbound/ext_api_files/",
+					"par_url_base": "https://www.rcontrol.com.mx/japi/",
+					"par_cont": "dev",
+					"par_status": "SI9",
+					"par_function": "get_shipment_info_inb",
+					"par_tabla": "INBOUND_HISTORICO"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2023-04-10T20:56:00",
+				"timeZone": "Central Standard Time (Mexico)",
+				"schedule": {
+					"minutes": [
+						30
+					],
+					"hours": [
+						1
+					]
+				}
+			}
+		}
+	}
+}

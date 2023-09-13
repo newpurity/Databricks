@@ -1,0 +1,224 @@
+{
+	"name": "pl_load_data",
+	"properties": {
+		"activities": [
+			{
+				"name": "List Inbound Files",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_adsl2_origenesmx_binary",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "inbound/fact/ndg",
+							"par_filename": " "
+						}
+					},
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "BinaryReadSettings"
+					}
+				}
+			},
+			{
+				"name": "Load Silver Layer",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "List Inbound Files",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('List Inbound Files').output.childItems",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Load CSV into Silver Layer",
+							"description": "Notebook that processes each CSV file found in the Inbound folder and load the data in the Silver Data Layer",
+							"type": "DatabricksNotebook",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Repos/ricardo.perez1@mx.nestle.com/DatabricksMX/sl_ndg/fact/fact_master_plan/execution/0010_ndg_fact_master_plan_load_silver_layer",
+								"baseParameters": {
+									"adf_csvFile": {
+										"value": "@item().name",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Catch Error Loading CSV",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Load CSV into Silver Layer",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "ErrorMessage",
+								"value": {
+									"value": "@activity('Load CSV into Silver Layer').Error.Message",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Catch Error Listing Files",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "List Inbound Files",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ErrorMessage",
+					"value": {
+						"value": "@activity('List Inbound Files').Error.Message",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Catch Error Load Silver Layer",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Load Silver Layer",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ErrorMessage",
+					"value": {
+						"value": "@activity('Load Silver Layer').Error.Message",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Load Gold Layer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Load Silver Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/ricardo.perez1@mx.nestle.com/DatabricksMX/sl_ndg/fact/fact_master_plan/execution/0020_ndg_fact_master_plan_load_gold_layer"
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Catch Error Load Gold Layer",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Load Gold Layer",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "ErrorMessage",
+					"value": {
+						"value": "@activity('Load Gold Layer').Error.Message",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"ErrorMessage": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_ndg"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:27Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

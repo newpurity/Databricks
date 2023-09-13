@@ -1,0 +1,26 @@
+{
+	"name": "tr_connection_catalog",
+	"properties": {
+		"description": "Trigger que ejecuta cada que el catalogo de conexiones entre SO, SI y exhibiciones se actualiza",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_sales_catalog_connection",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/datascience/blobs/datastore/sales/walmart/catalogos",
+			"blobPathEndsWith": "catalogo_final_walmart.xlsx",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

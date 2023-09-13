@@ -1,0 +1,28 @@
+{
+	"name": "ds_ar_rest_shp_binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_ar_http_shp_generic",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"par_Url": {
+					"value": "@dataset().par_Url",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"par_Url": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

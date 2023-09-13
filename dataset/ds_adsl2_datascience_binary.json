@@ -1,0 +1,34 @@
+{
+	"name": "ds_adsl2_datascience_binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_datascience",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"par_directory": {
+				"type": "string"
+			},
+			"par_filename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().par_filename",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().par_directory",
+					"type": "Expression"
+				},
+				"fileSystem": "datascience"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

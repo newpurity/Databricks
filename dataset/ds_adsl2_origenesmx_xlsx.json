@@ -1,0 +1,34 @@
+{
+	"name": "ds_adsl2_origenesmx_xlsx",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_op_adls2_lake_origenesmx",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"par_directory": {
+				"type": "string"
+			},
+			"par_filename": {
+				"type": "string"
+			},
+			"par_delimeter": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "in",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "consolidado_ic3.xlsx",
+				"folderPath": "temp_file_nbs",
+				"fileSystem": "dev"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

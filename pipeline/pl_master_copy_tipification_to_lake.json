@@ -1,0 +1,172 @@
+{
+	"name": "pl_master_copy_tipification_to_lake",
+	"properties": {
+		"activities": [
+			{
+				"name": "API Copy Sharepoint to Lake",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_common_verify_file_sharepoint",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_shp_copy-multiplefilestodatalakehourfilter",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parAdlsDestinationFolder": "inbound/credit_notes/files_tipification",
+						"parFileName": "Tipification",
+						"parShpSiteUrl": "https://nestle.sharepoint.com/teams/nmex-tipification-trabajo",
+						"parShpRelativeFolderPath": "Documentos Compartilhados",
+						"parModifiedLastNHours": "200",
+						"parClientID": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientid-nmex-trabajo-tipification/?api-version=7.0",
+						"parClientSecret": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientsecret-nmex-trabajo-tipification/?api-version=7.0",
+						"par_UtcNowVar": {
+							"value": "@variables('var_UtcNow')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "utcNowFolder",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_UtcNow",
+					"value": {
+						"value": "@utcnow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "pl_common_verify_file_sharepoint",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "utcNowFolder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_verify_file_sharepoint",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_common_load_extract_tipification",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "API Copy Sharepoint to Lake",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_load_extract_tipification",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_common_extract_log_register",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_common_load_extract_tipification",
+						"dependencyConditions": [
+							"Succeeded",
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_extract_log_register",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_common_extract_log_register_failure",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_common_verify_file_sharepoint",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_extract_log_register",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "pl_common_extract_log_register_failure_01",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "API Copy Sharepoint to Lake",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_extract_log_register",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"variables": {
+			"var_UtcNow": {
+				"type": "String"
+			},
+			"var_FileTipificationNameOut": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:34Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

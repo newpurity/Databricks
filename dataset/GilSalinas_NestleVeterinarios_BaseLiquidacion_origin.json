@@ -1,0 +1,25 @@
+{
+	"name": "GilSalinas_NestleVeterinarios_BaseLiquidacion_origin",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NESTLE_VETERINARIOS"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": {
+					"value": "@concat('BaseLiquidacion_',formatDateTime(getPastTime(5, 'Day'),'yyyy'),formatDateTime(getPastTime(0, 'Month'),'MM'),formatDateTime(getPastTime(18, 'Day'),'dd'),'.DAT.txt')",
+					"type": "Expression"
+				},
+				"folderPath": "/nestlevet"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

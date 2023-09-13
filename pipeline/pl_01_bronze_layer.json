@@ -1,0 +1,101 @@
+{
+	"name": "pl_01_bronze_layer",
+	"properties": {
+		"activities": [
+			{
+				"name": "load_bronze_layer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sl_siweb/execution/108_load_data",
+					"baseParameters": {
+						"par_IdClient": {
+							"value": "@pipeline().parameters.par_IdClient",
+							"type": "Expression"
+						},
+						"par_IdRetailer": {
+							"value": "@pipeline().parameters.par_IdRetailer",
+							"type": "Expression"
+						},
+						"par_IdType": {
+							"value": "@pipeline().parameters.par_IdType",
+							"type": "Expression"
+						},
+						"par_IdLog": {
+							"value": "@pipeline().parameters.par_IdLog",
+							"type": "Expression"
+						},
+						"par_MailList": {
+							"value": "@pipeline().parameters.par_MailList",
+							"type": "Expression"
+						},
+						"par_User": {
+							"value": "@pipeline().parameters.par_User",
+							"type": "Expression"
+						},
+						"par_RetailerName": {
+							"value": "@pipeline().parameters.par_RetailerName",
+							"type": "Expression"
+						},
+						"par_IsATM": {
+							"value": "@pipeline().parameters.par_IsATM",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"par_IdClient": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"par_IdRetailer": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"par_IdType": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"par_IdLog": {
+				"type": "string",
+				"defaultValue": "1"
+			},
+			"par_MailList": {
+				"type": "string",
+				"defaultValue": "mail"
+			},
+			"par_User": {
+				"type": "string",
+				"defaultValue": "drivera"
+			},
+			"par_RetailerName": {
+				"type": "string",
+				"defaultValue": "retailer"
+			},
+			"par_IsATM": {
+				"type": "string",
+				"defaultValue": "false"
+			}
+		},
+		"folder": {
+			"name": "Siweb"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

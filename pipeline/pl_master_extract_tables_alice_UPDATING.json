@@ -1,0 +1,348 @@
+{
+	"name": "pl_master_extract_tables_alice_UPDATING",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Fecha Actual",
+				"description": "Obtem a data que vai ser utilizada durante todo o processo ",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varFechaAtual",
+					"value": {
+						"value": "@formatDateTime(utcnow(),'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "pl_extract_move_blob_to_blob",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Get Fecha Actual",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_extract_move_blob_to_blob",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parFileNameCopy": {
+							"value": "@pipeline().parameters.m_parFileNameCopy",
+							"type": "Expression"
+						},
+						"parPathCopy": {
+							"value": "@pipeline().parameters.m_parPathCopy",
+							"type": "Expression"
+						},
+						"parPathDestination": {
+							"value": "@pipeline().parameters.m_parPathDestination",
+							"type": "Expression"
+						},
+						"parFileNameTitle": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						},
+						"parContainer": {
+							"value": "@pipeline().parameters.m_parContainer",
+							"type": "Expression"
+						},
+						"parFechaAtual": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "pl_load_tablas_notebook_alice",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_extract_move_blob_to_blob",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_load_tablas_notebook_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parFechaAtual_Carga": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						},
+						"parTableName": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "pl_common_load_datascience",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_load_tablas_notebook_alice",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_load_datascience",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parTableName_Load": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Email Error Blob",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_extract_move_blob_to_blob",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocurrió un error en Pipeline al copiar los archivos al Blob",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx",
+						"par_project_name": "ALICE",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Email Error Load Tablas",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_load_tablas_notebook_alice",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocurrió un error en Pipeline al crear las tablas delta in Databricks",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx",
+						"par_project_name": "ALICE",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Email Error Load Datascience",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_common_load_datascience",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "Ocurrió un error en Pipeline al copiar las tablas al Datascience",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx",
+						"par_project_name": "ALICE",
+						"par_status_msg": "Error",
+						"par_etapa": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Send Email Completed Pipeline",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_extract_move_blob_to_blob_Folders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_send_email_notification_alice",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_conteudo_email": "El Pipeline se ejecutó correctamente",
+						"par_lista_email": "rafael.medeiros2@br.nestle.com;yair.atristain@mx.nestle.com;Roberto.Fernandez@mx.nestle.com;Ricardo.Falcon@n-agencias.com.mx",
+						"par_project_name": "ALICE",
+						"par_status_msg": "Sucesso",
+						"par_etapa": {
+							"value": "@pipeline().parameters.m_parFileNameTitle",
+							"type": "Expression"
+						},
+						"par_fecha": {
+							"value": "@variables('varFechaAtual')",
+							"type": "Expression"
+						},
+						"par_runid": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "pl_extract_move_blob_to_blob_Folders",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_common_load_datascience",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_extract_move_blob_to_blob_filter",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"parFolderName": {
+							"value": "@pipeline().parameters.m_parFileNameCopy",
+							"type": "Expression"
+						},
+						"parContName": {
+							"value": "@pipeline().parameters.m_parContainer",
+							"type": "Expression"
+						},
+						"parPathCopy": {
+							"value": "@pipeline().parameters.m_parPathCopy",
+							"type": "Expression"
+						},
+						"parPathDestination": {
+							"value": "@pipeline().parameters.m_parPathArchive",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"m_parContainer": {
+				"type": "string"
+			},
+			"m_parFileNameTitle": {
+				"type": "string"
+			},
+			"m_parPathDestination": {
+				"type": "string"
+			},
+			"m_parPathCopy": {
+				"type": "string"
+			},
+			"m_parFileNameCopy": {
+				"type": "string"
+			},
+			"m_parPathArchive": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"varFechaAtual": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_supply_alice"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

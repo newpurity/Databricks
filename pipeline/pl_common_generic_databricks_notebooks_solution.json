@@ -1,0 +1,503 @@
+{
+	"name": "pl_common_generic_databricks_notebooks_solution",
+	"properties": {
+		"activities": [
+			{
+				"name": "Setup_Extract_DB_Notebook",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_generic_databricks_notebook",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_db_type_path": {
+							"value": "@concat('setup/001',pipeline().parameters.par_id,'.Setup_')",
+							"type": "Expression"
+						},
+						"par_db_etl_path": "Extract_",
+						"par_db_folder_path": {
+							"value": "@pipeline().parameters.par_db_folder_path",
+							"type": "Expression"
+						},
+						"par_db_sol_path": {
+							"value": "@pipeline().parameters.par_db_sol_path",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Setup_Transform_DB_Notebook",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Exec_Extract_DB_Notebook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_generic_databricks_notebook",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_db_type_path": {
+							"value": "@concat('setup/002',pipeline().parameters.par_id,'.Setup_')",
+							"type": "Expression"
+						},
+						"par_db_etl_path": "Transform_",
+						"par_db_folder_path": {
+							"value": "@pipeline().parameters.par_db_folder_path",
+							"type": "Expression"
+						},
+						"par_db_sol_path": {
+							"value": "@pipeline().parameters.par_db_sol_path",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Exec_Extract_DB_Notebook",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Setup_Extract_DB_Notebook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_generic_databricks_notebook",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_db_type_path": {
+							"value": "@concat('execution/001',pipeline().parameters.par_id,'.Exec_')",
+							"type": "Expression"
+						},
+						"par_db_etl_path": "Extract_",
+						"par_db_folder_path": {
+							"value": "@pipeline().parameters.par_db_folder_path",
+							"type": "Expression"
+						},
+						"par_db_sol_path": {
+							"value": "@pipeline().parameters.par_db_sol_path",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Exec_Transform_DB_Notebook",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Setup_Transform_DB_Notebook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_common_generic_databricks_notebook",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"par_db_type_path": {
+							"value": "@concat('execution/002',pipeline().parameters.par_id,'.Exec_')",
+							"type": "Expression"
+						},
+						"par_db_etl_path": "Transform_",
+						"par_db_folder_path": {
+							"value": "@pipeline().parameters.par_db_folder_path",
+							"type": "Expression"
+						},
+						"par_db_sol_path": {
+							"value": "@pipeline().parameters.par_db_sol_path",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Get ADF_parameters_gold_layer",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_datascience_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "datastore/sales/adf_parameters/",
+							"par_filename": "ADF_parameters_gold_layer.csv",
+							"par_delimiter": ",",
+							"par_encoding": "UTF-8",
+							"par_header": true
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Filter ADF_parameters_gold_layer",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get ADF_parameters_gold_layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get ADF_parameters_gold_layer').output.value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(string(item().solution),pipeline().parameters.par_solution)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach Gold Layer",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Exec_Transform_DB_Notebook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Filter ADF_parameters_gold_layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter ADF_parameters_gold_layer').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If Condition Gold Layer",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('Filter ADF_parameters_gold_layer').output.FilteredItemsCount,0)",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Setup_Load_DB_Notebook",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "pl_common_generic_databricks_notebook",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"par_db_type_path": {
+													"value": "@concat('setup/003',item().id_gold,'.Setup_')",
+													"type": "Expression"
+												},
+												"par_db_etl_path": "Load_",
+												"par_db_folder_path": {
+													"value": "@pipeline().parameters.par_db_folder_path",
+													"type": "Expression"
+												},
+												"par_db_sol_path": {
+													"value": "@string(item().db_sol_path)",
+													"type": "Expression"
+												}
+											}
+										}
+									},
+									{
+										"name": "Exec_Load_DB_Notebook",
+										"type": "ExecutePipeline",
+										"dependsOn": [
+											{
+												"activity": "Setup_Load_DB_Notebook",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "pl_common_generic_databricks_notebook",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"par_db_type_path": {
+													"value": "@concat('execution/003',item().id_gold,'.Exec_')",
+													"type": "Expression"
+												},
+												"par_db_etl_path": "Load_",
+												"par_db_folder_path": {
+													"value": "@pipeline().parameters.par_db_folder_path",
+													"type": "Expression"
+												},
+												"par_db_sol_path": {
+													"value": "@string(item().db_sol_path)",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Get ADF_parameters_powerbi_service",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_datascience_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "datastore/sales/adf_parameters/",
+							"par_filename": "ADF_parameters_powerbi_service.csv",
+							"par_delimiter": ",",
+							"par_encoding": "UTF-8",
+							"par_header": true
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Filter ADF_parameters_powerbi_service",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get ADF_parameters_powerbi_service",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get ADF_parameters_powerbi_service').output.value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(string(item().solution),pipeline().parameters.par_solution)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach PowerBI Service",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter ADF_parameters_powerbi_service",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ForEach Gold Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter ADF_parameters_powerbi_service').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "If Condition PowerBI Service",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('Filter ADF_parameters_powerbi_service').output.FilteredItemsCount,0)",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "PowerBi Service",
+										"type": "ExecutePipeline",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"pipeline": {
+												"referenceName": "pl_common_generic_refresh_power_bi_dataset",
+												"type": "PipelineReference"
+											},
+											"waitOnCompletion": true,
+											"parameters": {
+												"par_id_workspace": {
+													"value": "@string(item().workspace_id)",
+													"type": "Expression"
+												},
+												"par_id_dataset": {
+													"value": "@string(item().dataset_id)",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If Condition Copy Parquet",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "ForEach Gold Layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(pipeline().parameters.par_parquet,'TRUE')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Execute Pipeline Copy Parquet",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_common_generic_parquet_copy",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_db_sol_path": {
+										"value": "@pipeline().parameters.par_db_sol_path",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"par_db_folder_path": {
+				"type": "string"
+			},
+			"par_db_sol_path": {
+				"type": "string"
+			},
+			"par_solution": {
+				"type": "string"
+			},
+			"par_id": {
+				"type": "string"
+			},
+			"par_parquet": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"var_id": {
+				"type": "String"
+			},
+			"var_test": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_sales/amsmx_common_db"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

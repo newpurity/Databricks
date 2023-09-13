@@ -1,0 +1,437 @@
+{
+	"name": "pl_common_generic_api",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable Fecha Hoy",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "var_set_fecha_hoy",
+					"value": {
+						"value": "@formatDateTime(pipeline().TriggerTime,'yyyyMMdd')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Get ADF_parameters_apis",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adls_datascience_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "datastore/sales/adf_parameters/",
+							"par_filename": "ADF_parameters_mayoreo_apis.csv",
+							"par_delimiter": ",",
+							"par_encoding": "UTF-8",
+							"par_header": true
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Filter ADF_parameters_apis",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get ADF_parameters_apis",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get ADF_parameters_apis').output.value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@equals(string(item().retailer),pipeline().parameters.par_retailer)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEach type retailer",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Set variable Fecha Hoy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "If Condition API Login",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter ADF_parameters_apis').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Copy API Data",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "RestSource",
+									"httpRequestTimeout": "00:05:00",
+									"requestInterval": "00.00:00:00.010",
+									"requestMethod": "GET"
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ar_rest_api_generic_auth",
+									"type": "DatasetReference",
+									"parameters": {
+										"par_url_complete": {
+											"value": "@concat(item().url,item().header_key)",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "json_api_web",
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": {
+											"value": "@concat(item().retailer,'_',variables('var_set_fecha_hoy'),'_',item().tipo,'.json')",
+											"type": "Expression"
+										},
+										"ContName": {
+											"value": "@item().cont",
+											"type": "Expression"
+										},
+										"FoldPath": {
+											"value": "@concat(item().blob_path,'/',item().retailer,'/',item().tipo)",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						},
+						{
+							"name": "Notebook API generic bronze layer",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "Copy API Data",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Repos/Production/DatabricksMX/sl_so/sl_so_mayoreo/sl_so_mayoreo_apis_generic/execution/0010.Execution_Extract_MX_Sales_Mayoreo_API_Generic",
+								"baseParameters": {
+									"parFechaExecution": {
+										"value": "@variables('var_set_fecha_hoy')",
+										"type": "Expression"
+									},
+									"parFilePath": {
+										"value": "@concat(item().cont,item().blob_path)",
+										"type": "Expression"
+									},
+									"parRetailer": {
+										"value": "@item().retailer",
+										"type": "Expression"
+									},
+									"parRetailerType": {
+										"value": "@item().tipo",
+										"type": "Expression"
+									},
+									"parTableType": {
+										"value": "@item().tb_type",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference"
+							}
+						},
+						{
+							"name": "Notebook  Setup API generic silver layer",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "Notebook API generic bronze layer",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": {
+									"value": "@concat('/Repos/Production/DatabricksMX/sl_so/sl_so_mayoreo/sl_so_mayoreo_',item().retailer,'/setup/002',item().nb_id,'.Setup_',item().nb_name)",
+									"type": "Expression"
+								},
+								"baseParameters": {
+									"parFechaExecution": {
+										"value": "@variables('var_set_fecha_hoy')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference",
+								"parameters": {
+									"par_cluster": "0130-211945-mcv1mi12"
+								}
+							}
+						},
+						{
+							"name": "Notebook  Exec API generic silver layer",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "Notebook  Setup API generic silver layer",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": {
+									"value": "@concat('/Repos/Production/DatabricksMX/sl_so/sl_so_mayoreo/sl_so_mayoreo_',item().retailer,'/execution/002',item().nb_id,'.Exec_',item().nb_name)",
+									"type": "Expression"
+								},
+								"baseParameters": {
+									"parFechaExecution": {
+										"value": "@variables('var_set_fecha_hoy')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "If Condition API Login",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Filter ADF_parameters_apis",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Filter ADF_parameters_apis').output.value[0]['login'],'TRUE')",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Execute Pipeline API Login",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_common_generic_api_login",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"par_retailer": {
+										"value": "@activity('Filter ADF_parameters_apis').output.value[0]['retailer']",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Notebook  Setup API generic sgold layer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "ForEach type retailer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat('/Repos/Production/DatabricksMX/sl_so/sl_so_mayoreo/sl_so_mayoreo_marvin','/setup/0030.Setup_Load_SO_Mayoreo_Dataset_Marvin')",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"parFechaExecution": {
+							"value": "@variables('var_set_fecha_hoy')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_cluster": "0130-211945-mcv1mi12"
+					}
+				}
+			},
+			{
+				"name": "Notebook  Exec API generic gold layer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Notebook  Setup API generic sgold layer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": {
+						"value": "@concat('/Repos/Production/DatabricksMX/sl_so/sl_so_mayoreo/sl_so_mayoreo_nieto/execution/0031.Exec_Load_SO_Mayoreo_Nieto_Marvin')",
+						"type": "Expression"
+					},
+					"baseParameters": {
+						"parFechaExecution": {
+							"value": "@variables('var_set_fecha_hoy')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_cluster": "0130-211945-mcv1mi12"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"par_retailer": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"var_set_fecha_hoy": {
+				"type": "String"
+			},
+			"var_test": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_sales/amsmx_common_db"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

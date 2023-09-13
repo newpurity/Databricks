@@ -1,0 +1,117 @@
+{
+	"name": "pl_12_delete_products",
+	"properties": {
+		"activities": [
+			{
+				"name": "DeleteProducts",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Repos/Production/DatabricksMX/sv_utilities/functions/115_delete_products",
+					"baseParameters": {
+						"par_IdCustomer": {
+							"value": "@pipeline().parameters.par_IdCustomer",
+							"type": "Expression"
+						},
+						"par_IdLog": {
+							"value": "@pipeline().parameters.par_IdLog",
+							"type": "Expression"
+						},
+						"par_IdRetailer": {
+							"value": "@pipeline().parameters.par_IdRetailer",
+							"type": "Expression"
+						},
+						"par_IdRetailerProducts": {
+							"value": "@pipeline().parameters.par_IdRetailerProducts",
+							"type": "Expression"
+						},
+						"par_LoadUserLoadDate": {
+							"value": "@pipeline().parameters.par_LoadUserLoadDate",
+							"type": "Expression"
+						},
+						"par_Reason": {
+							"value": "@pipeline().parameters.par_Reason",
+							"type": "Expression"
+						},
+						"par_RemoveAll": {
+							"value": "@pipeline().parameters.par_RemoveAll",
+							"type": "Expression"
+						},
+						"par_RemoveTransactions": {
+							"value": "@pipeline().parameters.par_RemoveTransactions",
+							"type": "Expression"
+						},
+						"par_User": {
+							"value": "@pipeline().parameters.par_User",
+							"type": "Expression"
+						},
+						"par_UserEmail": {
+							"value": "@pipeline().parameters.par_UserEmail",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr_siweb",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"par_IdCustomer": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdRetailer": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdRetailerProducts": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_LoadUserLoadDate": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_UserEmail": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_Reason": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_RemoveAll": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_RemoveTransactions": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_IdLog": {
+				"type": "string",
+				"defaultValue": "-"
+			},
+			"par_User": {
+				"type": "string",
+				"defaultValue": "-"
+			}
+		},
+		"folder": {
+			"name": "Siweb"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

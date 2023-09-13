@@ -1,0 +1,22 @@
+{
+	"name": "GilSalinas_NestleVeterinarios_BaseLiquidacion_destination",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "NESTLE_VETERINARIOS"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "inbound/nestle_veterinarios/baseliquidacion",
+				"container": "dev"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

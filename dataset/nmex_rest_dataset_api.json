@@ -1,0 +1,27 @@
+{
+	"name": "nmex_rest_dataset_api",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "nmex_service_api_rest",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"url_base": {
+					"value": "@dataset().url_dataset_post_rest_api",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"url_dataset_post_rest_api": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": ""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

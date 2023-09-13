@@ -1,0 +1,22 @@
+{
+	"name": "SourceDataset_ore",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Sftp1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "mayoreodigital"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "SftpLocation",
+				"fileName": "Liquidaciones_20220615.DAT",
+				"folderPath": "/Entrada"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,126 @@
+{
+	"name": "pl_common_shp_copy-datalakefiletosharepoint",
+	"properties": {
+		"description": "Copy files of any size from DataLake to SharePoint\n\nTo use this pipeline you need to have the sharepoint client id and secret id registered in the dedicated sharepoint key vault",
+		"activities": [
+			{
+				"name": "UploadFileToSharepoint",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "GetShpSecret",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "GetShpClientId",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://nbra-pr-adipowershell-id-usw2-fnc.azurewebsites.net/api/AdlsCopyToSharepoint?code=AiD9yiCsYxvlQ0tbY9sT16VmAjyzs0FVg_RwgQwv-f3_AzFuv8AhQQ==",
+					"method": "POST",
+					"body": {
+						"value": "@json(\n    concat(\n        '{\"fileName\": \"', pipeline().parameters.parFileName,\n        '\",',\n        '\"environment\": \"', pipeline().parameters.parEnvironment,\n        '\",',\n        '\"sourceFolder\": \"', pipeline().parameters.parAdlsSourceFolder,\n        '\",',\n        '\"siteURL\": \"', pipeline().parameters.parShpSiteUrl,\n        '\",',\n        '\"shpRelativeFolderPath\": \"', pipeline().parameters.parShpRelativeFolderPath,\n        '\",',\n        '\"sharepointClientId\": \"', activity('GetShpClientId').output.value,\n        '\",',\n        '\"sharepointClientSecret\": \"', activity('GetShpSecret').output.value,\n        '\",',\n        '}'\n    )\n)",
+						"type": "Expression"
+					},
+					"httpRequestTimeout": "00:10:00"
+				}
+			},
+			{
+				"name": "GetShpClientId",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.parClientID",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "GetShpSecret",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.parClientSecret",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"parEnvironment": {
+				"type": "string",
+				"defaultValue": "prod"
+			},
+			"parAdlsSourceFolder": {
+				"type": "string",
+				"defaultValue": "inbound/credit_notes/files_transfer/"
+			},
+			"parFileName": {
+				"type": "string"
+			},
+			"parShpSiteUrl": {
+				"type": "string",
+				"defaultValue": "https://nestle.sharepoint.com/teams/nmex-tipification-trabajo/"
+			},
+			"parShpRelativeFolderPath": {
+				"type": "string",
+				"defaultValue": "Documentos%20Compartilhados"
+			},
+			"parClientID": {
+				"type": "String",
+				"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientid-nmex-trabajo-tipification/?api-version=7.0"
+			},
+			"parClientSecret": {
+				"type": "String",
+				"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientsecret-nmex-trabajo-tipification/?api-version=7.0"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes/Utils/SharePoint/Toolset"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:15Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

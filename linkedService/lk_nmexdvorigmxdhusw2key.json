@@ -1,0 +1,11 @@
+{
+	"name": "lk_nmexdvorigmxdhusw2key",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://nmexdvorigmxdhusw2key.vault.azure.net/"
+		}
+	}
+}

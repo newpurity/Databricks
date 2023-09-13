@@ -1,0 +1,419 @@
+{
+	"name": "pl_common_verify_file_sharepoint",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEachFileVerifyBiling",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "FilterFilesBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('FilterFilesBiling').output.Value",
+						"type": "Expression"
+					},
+					"batchCount": 10,
+					"activities": [
+						{
+							"name": "Sharepoint Biling",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "varSHPBilingFilename",
+								"value": {
+									"value": "@item().Name",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "GetShpClientIdBiling",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.parClientIDBiling",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "GetShpSecretBiling",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@pipeline().parameters.parClientSecretBiling",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://vault.azure.net"
+					}
+				}
+			},
+			{
+				"name": "FilterFilesBiling",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "ReadSharepointFolderBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ReadSharepointFolderBiling').output['d']['results']",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@and(\n    startswith(item()['Name'],pipeline().parameters.parFileNameBiling),\n    greaterOrEquals(\n        item()['TimeLastModified'],\n        addToTime(\n            utcnow(),\n            mul(int(pipeline().parameters.parModifiedLastNHoursBiling),-1),\n            'hour'\n        )\n    )\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ReadSharepointFolderBiling",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "GetSharepointBearerTokenBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat(pipeline().parameters.parShpSiteUrlBiling,'/_api/web/GetFolderByServerRelativeUrl(''',replace(pipeline().parameters.parShpSiteUrlBiling,'https://nestle.sharepoint.com',''),'/',pipeline().parameters.parShpRelativeFolderPathBiling,''')/Files')",
+						"type": "Expression"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@{concat('Bearer ', activity('GetSharepointBearerTokenBiling').output.access_token)}",
+							"type": "Expression"
+						},
+						"Accept": "application/json;odata=verbose"
+					}
+				}
+			},
+			{
+				"name": "GetSharepointBearerTokenBiling",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "GetShpClientIdBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "GetShpSecretBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://accounts.accesscontrol.windows.net/12a3af23-a769-4654-847f-958f3d479f4a/tokens/OAuth/2",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials&client_id=',uriComponent(activity('GetShpClientIdBiling').output.value),'@12a3af23-a769-4654-847f-958f3d479f4a&client_secret=',uriComponent(activity('GetShpSecretBiling').output.value),'&resource=00000003-0000-0ff1-ce00-000000000000/nestle.sharepoint.com@12a3af23-a769-4654-847f-958f3d479f4a')\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Search File Version",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('Search File Version').output.firstRow.Version,'Atual')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "pl_common_shp_copy-sharepointsinglefiletodatalake",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_common_shp_copy-sharepointsinglefiletodatalake",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"parFileName": {
+										"value": "@variables('varSHPBilingFilename')",
+										"type": "Expression"
+									},
+									"parNewFileName": {
+										"value": "@variables('varSHPBilingFilename')",
+										"type": "Expression"
+									},
+									"parUTCNow": {
+										"value": "@variables('varUTCNow')",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "Carga Biling Tipification Delta Table",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "pl_common_shp_copy-sharepointsinglefiletodatalake",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": "/Users/rafael.medeiros2@br.nestle.com/sl_creditnotes_tipification/06_tipification_shp_transfer",
+								"baseParameters": {
+									"parArchivoNombreAtual": {
+										"value": "@activity('Search File Version').output.firstRow.ActualNombreArchivo",
+										"type": "Expression"
+									},
+									"parDateTimeUTC": {
+										"value": "@variables('varUTCNow')",
+										"type": "Expression"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Verify File Version",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "VAR UTC NOW",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/rafael.medeiros2@br.nestle.com/sl_creditnotes_tipification/03_verify_file_version_tipification",
+					"baseParameters": {
+						"parFileOutputName": {
+							"value": "@variables('varSHPBilingFilename')",
+							"type": "Expression"
+						},
+						"parNowDateTimeUTC": {
+							"value": "@variables('varUTCNow')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "lk_nmex_dv_origenesmx_id_usw2_dbr",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Search File Version",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "Verify File Version",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_adsl2_origenesmx_csv",
+						"type": "DatasetReference",
+						"parameters": {
+							"par_directory": "inbound/credit_notes/files_tipification/01_FileVersionControl",
+							"par_filename": "FileVersionTipificationControl.csv",
+							"par_delimeter": ","
+						}
+					}
+				}
+			},
+			{
+				"name": "VAR UTC NOW",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "ForEachFileVerifyBiling",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "varUTCNow",
+					"value": {
+						"value": "@utcnow()",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"parClientSecretBiling": {
+				"type": "String",
+				"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientsecret-mxbilingrebates/?api-version=7.0"
+			},
+			"parClientIDBiling": {
+				"type": "String",
+				"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientid-mxbilingrebates/?api-version=7.0"
+			},
+			"parShpSiteUrlBiling": {
+				"type": "String",
+				"defaultValue": "https://nestle.sharepoint.com/teams/MXFillOutBillingReference"
+			},
+			"parShpRelativeFolderPathBiling": {
+				"type": "String",
+				"defaultValue": "Shared Documents/Archivos tipificación"
+			},
+			"parFileNameBiling": {
+				"type": "String",
+				"defaultValue": "tipificacion"
+			},
+			"parModifiedLastNHoursBiling": {
+				"type": "String",
+				"defaultValue": "200"
+			}
+		},
+		"variables": {
+			"varSHPBilingFilename": {
+				"type": "String"
+			},
+			"varSHPTrabajoFilename": {
+				"type": "String"
+			},
+			"varUTCNow": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "amsmx_finance_creditnotes"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-08-07T23:28:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
