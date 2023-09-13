@@ -52,6 +52,10 @@ df_2.rename(columns={"Answer_As_Text":"Answer_as_Text"},inplace=True)
 
 # COMMAND ----------
 
+df_2.fillna("Sin Registro", inplace=True)
+
+# COMMAND ----------
+
 df_2 = df_2[df_2["Question"].str.contains("frentes")]
 
 # COMMAND ----------
