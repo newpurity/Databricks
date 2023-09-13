@@ -1,0 +1,1105 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "nmex-dv-origmx-dh-usw2-adf"
+		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"connectionString\"de \"AzureSqlDatabase1\""
+		},
+		"Sftp1_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"Sftp1\""
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"Sftp_NESTLEVETERINARIOS_GILSALINAS\""
+		},
+		"ls_ar_sftp_ncdt_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_ar_sftp_ncdt\""
+		},
+		"ls_ar_sftp_ncdt_2_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_ar_sftp_ncdt_2\""
+		},
+		"ls_op_adls2_lake_latam_mwsAuthToken": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"mwsAuthToken\"de \"ls_op_adls2_lake_latam\""
+		},
+		"ls_op_adls2_lake_latam_secretKey": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"secretKey\"de \"ls_op_adls2_lake_latam\""
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://reqres.in/api/users"
+		},
+		"Sftp1_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "148.244.86.195"
+		},
+		"Sftp1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sftpgerardoarcemb2b"
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "148.244.86.195"
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sftpgarcevet"
+		},
+		"api_web_test_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().par_url}"
+		},
+		"ar_rest_api_generic_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().par_url}"
+		},
+		"ar_rest_api_generic_auth_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().par_url_auth}"
+		},
+		"lk_nmexdvorigmxdhusw2key_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/"
+		},
+		"ls_ar_http_shp_generic_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().par_Url}"
+		},
+		"ls_ar_sftp_ncdt_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "@{linkedService().parhost}"
+		},
+		"ls_ar_sftp_ncdt_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "@{linkedService().paruser}"
+		},
+		"ls_ar_sftp_ncdt_2_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "@{linkedService().parhost}"
+		},
+		"ls_ar_sftp_ncdt_2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "@{linkedService().paruser}"
+		},
+		"ls_op_adls2_lake_latam_properties_typeProperties_endpoint": {
+			"type": "string",
+			"defaultValue": "ls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latam"
+		},
+		"ls_op_adls2_lake_latam_properties_typeProperties_accessKeyId": {
+			"type": "string",
+			"defaultValue": "ls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latam"
+		},
+		"nmex_service_api_rest_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{linkedService().url_base}"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Nestle_Veterinarios_GilSalinas')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Pipeline de Nestlé Veterinarios para el cliente Gil Salinas",
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "amsmx_supply_alice/pl_extract/amsmx_veterinarios"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy files of any size from SharePoint  to Data Lake, including copy all files matching a startswith condition of a folder and files modified in the last x hours.\n\nTo use this pipeline you need to have the sharepoint client id and secret id registered in the dedicated sharepoint key vault",
+				"activities": [
+					{
+						"name": "Set ClientSecret",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "varClientSecret",
+							"value": "h6iG0ZNe9lqMPxzyQsf+oj9PBnGZ+Gtu6rYOoMHj5ig="
+						}
+					},
+					{
+						"name": "Set varClientID",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "varClientID",
+							"value": "fe4b99e8-cb9c-477d-b6c0-721f17e199a2"
+						}
+					},
+					{
+						"name": "GetSharepointBearerToken_copy1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Set varClientID",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Set ClientSecret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://accounts.accesscontrol.windows.net/12a3af23-a769-4654-847f-958f3d479f4a/tokens/OAuth/2",
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "@concat('grant_type=client_credentials&client_id=',variables('varClientID'),'12a3af23-a769-4654-847f-958f3d479f4a&client_secret=',variables('varClientSecret'),'&resource=00000003-0000-0ff1-ce00-000000000000/nestle.sharepoint.com12a3af23-a769-4654-847f-958f3d479f4a')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ReadSharepointFolder_copy1",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "GetSharepointBearerToken_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat(pipeline().parameters.parShpSiteUrl,'/_api/web/GetFolderByServerRelativeUrl(''',replace(pipeline().parameters.parShpSiteUrl,'https://nestle.sharepoint.com',''),'/',pipeline().parameters.parShpRelativeFolderPath,''')/Files')",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {
+								"Authorization": {
+									"value": "@{concat('Bearer ', activity('GetSharepointBearerToken_copy1').output.access_token)}",
+									"type": "Expression"
+								},
+								"Accept": "application/json;odata=verbose"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"parFileName": {
+						"type": "string",
+						"defaultValue": "Tipification"
+					},
+					"parShpSiteUrl": {
+						"type": "string",
+						"defaultValue": "https://nestle.sharepoint.com/teams/nmex-tipification-trabajo"
+					},
+					"parShpRelativeFolderPath": {
+						"type": "string",
+						"defaultValue": "Documentos Compartilhados"
+					},
+					"parModifiedLastNHours": {
+						"type": "string",
+						"defaultValue": "200"
+					}
+				},
+				"variables": {
+					"varClientID": {
+						"type": "String"
+					},
+					"varClientSecret": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "amsmx_data-load-tool"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "amsmx_veterinarios"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_teste_data')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set variable1",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "teste",
+							"value": {
+								"value": "@convertTimeZone(utcNow(),'UTC','Central Standard Time (Mexico)')\n",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"teste": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "amsmx_supply_alice"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_common_generic_refresh_power_bi_dataset')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Generic pipeline to update power bi datasets",
+				"activities": [
+					{
+						"name": "Key Vault - TenantID",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/TENANTID-MxAppPowerBiApi/?api-version=7.0",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"body": {
+								"simple": "body"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Key Vault - ClientID",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/ClientID-MxAppPowerBiApi/?api-version=7.0",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"body": {
+								"simple": "body"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Key Vault - C Secret",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/APP-MxAppPowerBiApi/?api-version=7.0",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"body": {
+								"simple": "body"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Get AAD Token",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Key Vault - TenantID",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Key Vault - ClientID",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Key Vault - C Secret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://login.microsoftonline.com/',activity('Key Vault - TenantID').output.value,'/oauth2/token')",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							"body": {
+								"value": "@concat('grant_type=client_credentials&resource=https://analysis.windows.net/powerbi/api&client_id=',activity('Key Vault - ClientID').output.value,'&client_secret=',encodeUriComponent(activity('Key Vault - C Secret').output.value))",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Call dataset refresh",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Get AAD Token",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.par_id_workspace,'/datasets/',pipeline().parameters.par_id_dataset,'/refreshes')",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Authorization": {
+									"value": "@concat(string(activity('Get AAD Token').output.token_type),' ',string(activity('Get AAD Token').output.access_token))",
+									"type": "Expression"
+								}
+							},
+							"body": {
+								"notifyOption": "NoNotification"
+							}
+						}
+					},
+					{
+						"name": "Until dataset refresh completion",
+						"type": "Until",
+						"dependsOn": [
+							{
+								"activity": "Call dataset refresh",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@not(equals(first(json(string(activity('Get dataset refresh status').output)).value).status,'Unknown'))",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Wait 30 seconds",
+									"type": "Wait",
+									"dependsOn": [
+										{
+											"activity": "Refresh AAD Token",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 30
+									}
+								},
+								{
+									"name": "Get dataset refresh status",
+									"type": "WebActivity",
+									"dependsOn": [
+										{
+											"activity": "Wait 30 seconds",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": true
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "@concat('https://api.powerbi.com/v1.0/myorg/groups/',pipeline().parameters.par_id_workspace,'/datasets/',pipeline().parameters.par_id_dataset,'/refreshes?$top=1')",
+											"type": "Expression"
+										},
+										"method": "GET",
+										"headers": {
+											"Authorization": {
+												"value": "@concat(string(activity('Refresh AAD Token').output.token_type),' ',string(activity('Refresh AAD Token').output.access_token))",
+												"type": "Expression"
+											},
+											"Content-Type": "application/json"
+										}
+									}
+								},
+								{
+									"name": "Refresh AAD Token",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": true,
+										"secureInput": true
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": {
+											"value": "@concat('https://login.microsoftonline.com/',activity('Key Vault - TenantID').output.value,'/oauth2/token')",
+											"type": "Expression"
+										},
+										"method": "POST",
+										"headers": {
+											"Content-Type": "application/x-www-form-urlencoded"
+										},
+										"body": {
+											"value": "@concat('grant_type=client_credentials&resource=https://analysis.windows.net/powerbi/api&client_id=',activity('Key Vault - ClientID').output.value,'&client_secret=',encodeUriComponent(activity('Key Vault - C Secret').output.value))",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"timeout": "0.03:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_id_workspace": {
+						"type": "string"
+					},
+					"par_id_dataset": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"ProcessingErrors": {
+						"type": "Boolean"
+					}
+				},
+				"folder": {
+					"name": "amsla_data-load-tool"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_common_shp_copy-datalakefiletosharepoint')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copy files of any size from DataLake to SharePoint\n\nTo use this pipeline you need to have the sharepoint client id and secret id registered in the dedicated sharepoint key vault",
+				"activities": [
+					{
+						"name": "UploadFileToSharepoint",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "GetShpSecret",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "GetShpClientId",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://nbra-pr-adipowershell-id-usw2-fnc.azurewebsites.net/api/AdlsCopyToSharepoint?code=AiD9yiCsYxvlQ0tbY9sT16VmAjyzs0FVg_RwgQwv-f3_AzFuv8AhQQ==",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@json(\n    concat(\n        '{\"fileName\": \"', pipeline().parameters.parFileName,\n        '\",',\n        '\"environment\": \"', pipeline().parameters.parEnvironment,\n        '\",',\n        '\"sourceFolder\": \"', pipeline().parameters.parAdlsSourceFolder,\n        '\",',\n        '\"siteURL\": \"', pipeline().parameters.parShpSiteUrl,\n        '\",',\n        '\"shpRelativeFolderPath\": \"', pipeline().parameters.parShpRelativeFolderPath,\n        '\",',\n        '\"sharepointClientId\": \"', activity('GetShpClientId').output.value,\n        '\",',\n        '\"sharepointClientSecret\": \"', activity('GetShpSecret').output.value,\n        '\",',\n        '}'\n    )\n)",
+								"type": "Expression"
+							},
+							"httpRequestTimeout": "00:10:00"
+						}
+					},
+					{
+						"name": "GetShpClientId",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.parClientID",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "GetShpSecret",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": true,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@pipeline().parameters.parClientSecret",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"parEnvironment": {
+						"type": "string",
+						"defaultValue": "prod"
+					},
+					"parAdlsSourceFolder": {
+						"type": "string",
+						"defaultValue": "inbound/credit_notes/files_transfer/"
+					},
+					"parFileName": {
+						"type": "string"
+					},
+					"parShpSiteUrl": {
+						"type": "string",
+						"defaultValue": "https://nestle.sharepoint.com/teams/nmex-tipification-trabajo/"
+					},
+					"parShpRelativeFolderPath": {
+						"type": "string",
+						"defaultValue": "Documentos%20Compartilhados"
+					},
+					"parClientID": {
+						"type": "String",
+						"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientid-nmex-trabajo-tipification/?api-version=7.0"
+					},
+					"parClientSecret": {
+						"type": "String",
+						"defaultValue": "https://nmexdvorigmxdhusw2key.vault.azure.net/secrets/shp-clientsecret-nmex-trabajo-tipification/?api-version=7.0"
+					}
+				},
+				"folder": {
+					"name": "amsmx_finance_creditnotes/Utils/SharePoint/Toolset"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_extract_mx_np_facts')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Wait1",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "amsmx_professional/facts"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestService1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('RestService1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Sftp1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Sftp",
+				"typeProperties": {
+					"host": "[parameters('Sftp1_properties_typeProperties_host')]",
+					"port": 22,
+					"skipHostKeyValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('Sftp1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Sftp1_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Sftp_NESTLEVETERINARIOS_GILSALINAS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Sftp",
+				"typeProperties": {
+					"host": "[parameters('Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_host')]",
+					"port": 22,
+					"skipHostKeyValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('Sftp_NESTLEVETERINARIOS_GILSALINAS_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/api_web_test')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"par_url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('api_web_test_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ar_rest_api_generic')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"par_url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('ar_rest_api_generic_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ar_rest_api_generic_auth')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"par_url_auth": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('ar_rest_api_generic_auth_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/lk_nmexdvorigmxdhusw2key')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('lk_nmexdvorigmxdhusw2key_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_ar_http_shp_generic')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"par_Url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_ar_http_shp_generic_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_ar_sftp_ncdt')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"parhost": {
+						"type": "string",
+						"defaultValue": "200.38.155.5"
+					},
+					"parport": {
+						"type": "int",
+						"defaultValue": 22
+					},
+					"paruser": {
+						"type": "string",
+						"defaultValue": "nestle_reportes_cliente"
+					},
+					"parkey": {
+						"type": "string",
+						"defaultValue": "sftp-pass-nestletp"
+					}
+				},
+				"annotations": [],
+				"type": "Sftp",
+				"typeProperties": {
+					"host": "[parameters('ls_ar_sftp_ncdt_properties_typeProperties_host')]",
+					"port": "@linkedService().parport",
+					"skipHostKeyValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('ls_ar_sftp_ncdt_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_ar_sftp_ncdt_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_ar_sftp_ncdt_2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "para descargar MI_Comparativo",
+				"parameters": {
+					"parhost": {
+						"type": "string",
+						"defaultValue": "98.142.238.57"
+					},
+					"parport": {
+						"type": "int",
+						"defaultValue": 22
+					},
+					"paruser": {
+						"type": "string",
+						"defaultValue": "TelePerformance"
+					},
+					"parkey": {
+						"type": "string",
+						"defaultValue": "sftp-mi-comparativo"
+					}
+				},
+				"annotations": [],
+				"type": "Sftp",
+				"typeProperties": {
+					"host": "[parameters('ls_ar_sftp_ncdt_2_properties_typeProperties_host')]",
+					"port": "@linkedService().parport",
+					"skipHostKeyValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('ls_ar_sftp_ncdt_2_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_ar_sftp_ncdt_2_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_op_adls2_lake_latam')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AmazonMWS",
+				"typeProperties": {
+					"endpoint": "[parameters('ls_op_adls2_lake_latam_properties_typeProperties_endpoint')]",
+					"marketplaceID": "ls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latam",
+					"sellerID": "ls_op_adls2_lake_latamls_op_adls2_lake_latam",
+					"mwsAuthToken": {
+						"type": "SecureString",
+						"value": "[parameters('ls_op_adls2_lake_latam_mwsAuthToken')]"
+					},
+					"accessKeyId": "[parameters('ls_op_adls2_lake_latam_properties_typeProperties_accessKeyId')]",
+					"secretKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_op_adls2_lake_latam_secretKey')]"
+					},
+					"useEncryptedEndpoints": true,
+					"useHostVerification": true,
+					"usePeerVerification": true
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/nmex_service_api_rest')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"url_base": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('nmex_service_api_rest_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

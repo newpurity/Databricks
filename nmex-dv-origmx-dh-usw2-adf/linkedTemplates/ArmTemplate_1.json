@@ -1,0 +1,597 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "nmex-dv-origmx-dh-usw2-adf"
+		},
+		"AzureBlobStorage2_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"connectionString\"de \"AzureBlobStorage2\""
+		},
+		"nmex-origmx-dh-usw2-ithub-shared-ir_properties_typeProperties_linkedInfo_resourceId": {
+			"type": "string",
+			"defaultValue": "/subscriptions/65538c2c-2fb6-4d89-8819-b3a38f8c63e2/resourcegroups/nams-pp-bsimaster-adi-usea-rgp/providers/Microsoft.DataFactory/factories/nams-pp-bsimaster-adi-usea-adf/integrationruntimes/nams-pp-bsimgd-shared-usea-ir"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/tg_mx_sc_tb_mx_sa_dashboardtc')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2023-04-19T19:18:00Z",
+						"timeZone": "UTC"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/tg_pl_alice_fact_historical')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Ejecuta pl_schedule_extract_tables_alice_historical tablas que corren cada hora \nOccurs every day every 1 hour(s) between 02:30:00 a. m. and 12:30:00 a. m..",
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2023-04-13T17:43:00Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								30
+							],
+							"hours": [
+								7,
+								8,
+								9,
+								10,
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21,
+								22,
+								23,
+								6,
+								5,
+								4,
+								3,
+								2,
+								0
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/nmex-origmx-dh-usw2-ithub-shared-ir')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"description": "Shared SH-IR to enable connectivity with shared sources except SAP MONO",
+				"typeProperties": {
+					"linkedInfo": {
+						"resourceId": "[parameters('nmex-origmx-dh-usw2-ithub-shared-ir_properties_typeProperties_linkedInfo_resourceId')]",
+						"authorizationType": "Rbac"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/nmex-pp-origenesmx-ithub-ir')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_send_email_notification_alice')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "URL HTTP POST",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": "https://prod-00-nams-pr-baisein-wrpa5gaht7mno-internal.westus2.environments.microsoftazurelogicapps.net:443/workflows/ceca053c86ba428e9c4e9d71134fa0c9/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=tMCGaXFb_ItzhjbxFqTzY1HvqDexzZZt75G3Eq0gzc4",
+							"connectVia": {
+								"referenceName": "nmex-pp-origenesmx-ithub-ir",
+								"type": "IntegrationRuntimeReference"
+							},
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"value": "@concat(\n    '{\n    \"conteudo-email\":\"',pipeline().parameters.par_conteudo_email,'\",\n    \"email-list\":\"',pipeline().parameters.par_lista_email,'\",\n        \"project-name\":\"',pipeline().parameters.par_project_name,'\",\n        \"status-msg\":\"',pipeline().parameters.par_status_msg,'\",\n        \"etapa\": \"',pipeline().parameters.par_etapa,'\",\n        \"fecha\": \"',pipeline().parameters.par_fecha,'\",\n        \"runid\": \"', pipeline().parameters.par_runid, ' \"\n        }')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"par_conteudo_email": {
+						"type": "string"
+					},
+					"par_lista_email": {
+						"type": "string"
+					},
+					"par_project_name": {
+						"type": "string"
+					},
+					"par_status_msg": {
+						"type": "string"
+					},
+					"par_etapa": {
+						"type": "string"
+					},
+					"par_fecha": {
+						"type": "string"
+					},
+					"par_runid": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "amsmx_supply_alice"
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-08-07T23:28:15Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/nmex-pp-origenesmx-ithub-ir')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataSetProductos')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "mayoreodigital"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": "Productos_20220617.DAT",
+						"folderPath": "/Entrada"
+					},
+					"columnDelimiter": "|",
+					"escapeChar": "\\",
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GilSalinas_NestleVeterinarios_BaseLiquidacion_origin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "NESTLE_VETERINARIOS"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": {
+							"value": "@concat('BaseLiquidacion_',formatDateTime(getPastTime(5, 'Day'),'yyyy'),formatDateTime(getPastTime(0, 'Month'),'MM'),formatDateTime(getPastTime(18, 'Day'),'dd'),'.DAT.txt')",
+							"type": "Expression"
+						},
+						"folderPath": "/nestlevet"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GilSalinas_NestleVeterinarios_Clientes_origin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "NESTLE_VETERINARIOS"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": "Clientes_20220816.DAT.txt",
+						"folderPath": "/nestlevet"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GilSalinas_NestleVeterinarios_Productos_origin')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp_NESTLEVETERINARIOS_GILSALINAS",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "NESTLE_VETERINARIOS"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": "Productos_20220727.DAT.txt",
+						"folderPath": "/nestlevet"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestResource1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ar_rest_api_generic",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/RestResource2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "api_web_test",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_url": {
+							"value": "@dataset().par_url",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"par_url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataSetProductos')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "mayoreodigital"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": {
+							"value": "@concat('Productos_',formatDateTime(getPastTime(5, 'Day'),'yyyy'),formatDateTime(getPastTime(2, 'Month'),'MM'),formatDateTime(getPastTime(20, 'Day'),'dd'),'.DAT')",
+							"type": "Expression"
+						},
+						"folderPath": "/Entrada"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDatasetProduct')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "mayoreodigital"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"folderPath": "/Entrada"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_ore')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Sftp1",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "mayoreodigital"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": "Liquidaciones_20220615.DAT",
+						"folderPath": "/Entrada"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ar_rest_api_generic')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ar_rest_api_generic",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_url": {
+							"value": "@dataset().par_url",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"QueryParameters": {
+						"type": "string"
+					},
+					"par_url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@dataset().QueryParameters",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ar_rest_api_generic_auth')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ar_rest_api_generic_auth",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_url_auth": {
+							"value": "@dataset().par_url_complete",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"par_url_complete": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_ar_rest_shp_binary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_ar_http_shp_generic",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"par_Url": {
+							"value": "@dataset().par_Url",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"par_Url": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_ar_sftp_ncdt')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_ar_sftp_ncdt",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"parhost": "200.38.155.5",
+						"parport": 22,
+						"paruser": "nestle_reportes_cliente",
+						"parkey": "sftp-pass-nestletp"
+					}
+				},
+				"parameters": {
+					"par_directory": {
+						"type": "string"
+					},
+					"par_filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "SftpLocation",
+						"fileName": {
+							"value": "@if(equals(dataset().par_filename,'0'),null , dataset().par_filename)\r\n\r\n",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().par_directory",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/nmex_rest_dataset_api')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "nmex_service_api_rest",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"url_base": {
+							"value": "@dataset().url_dataset_post_rest_api",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"url_dataset_post_rest_api": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": ""
+				},
+				"schema": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorage2_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "nmex-pp-origenesmx-ithub-ir",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/nmex-pp-origenesmx-ithub-ir')]"
+			]
+		}
+	]
+}

@@ -1,0 +1,459 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "nmex-dv-origmx-dh-usw2-adf"
+		},
+		"AzureBlobStorage2_connectionString": {
+			"value": ""
+		},
+		"AzureBlobStorage3_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
+		"IC3_connectionString": {
+			"value": ""
+		},
+		"IC3PROD_connectionString": {
+			"value": ""
+		},
+		"Sftp1_password": {
+			"value": ""
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_password": {
+			"value": ""
+		},
+		"ls_ar_sftp_ncdt_password": {
+			"value": ""
+		},
+		"ls_ar_sftp_ncdt_2_password": {
+			"value": ""
+		},
+		"ls_op_adls2_lake_latam_mwsAuthToken": {
+			"value": ""
+		},
+		"ls_op_adls2_lake_latam_secretKey": {
+			"value": ""
+		},
+		"AzureBlobStorage_MayoreoDigital_Dev_properties_typeProperties_serviceEndpoint": {
+			"value": "https://nmexpporigdsdh79sta.blob.core.windows.net/"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "https://prod-00-nams-pr-baisein-wrpa5gaht7mno-internal.westus2.environments.microsoftazurelogicapps.net:443/workflows/ceca053c86ba428e9c4e9d71134fa0c9/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=tMCGaXFb_ItzhjbxFqTzY1HvqDexzZZt75G3Eq0gzc4"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"value": "https://reqres.in/api/users"
+		},
+		"Sftp1_properties_typeProperties_host": {
+			"value": "148.244.86.195"
+		},
+		"Sftp1_properties_typeProperties_userName": {
+			"value": "sftpgerardoarcemb2b"
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_host": {
+			"value": "148.244.86.195"
+		},
+		"Sftp_NESTLEVETERINARIOS_GILSALINAS_properties_typeProperties_userName": {
+			"value": "sftpgarcevet"
+		},
+		"api_web_test_properties_typeProperties_url": {
+			"value": "@{linkedService().par_url}"
+		},
+		"ar_rest_api_generic_properties_typeProperties_url": {
+			"value": "@{linkedService().par_url}"
+		},
+		"ar_rest_api_generic_auth_properties_typeProperties_url": {
+			"value": "@{linkedService().par_url_auth}"
+		},
+		"lk_nmex_dv_origenesmx_id_usw2_dbr_properties_typeProperties_existingClusterId": {
+			"value": "@linkedService().par_cluster"
+		},
+		"lk_nmex_dv_origenesmx_id_usw2_dbr_siweb_properties_typeProperties_existingClusterId": {
+			"value": "0130-211945-mcv1mi12"
+		},
+		"lk_nmexdvorigmxdhusw2key_properties_typeProperties_baseUrl": {
+			"value": "https://nmexdvorigmxdhusw2key.vault.azure.net/"
+		},
+		"ls_ar_http_shp_generic_properties_typeProperties_url": {
+			"value": "@{linkedService().par_Url}"
+		},
+		"ls_ar_sftp_ncdt_properties_typeProperties_host": {
+			"value": "@{linkedService().parhost}"
+		},
+		"ls_ar_sftp_ncdt_properties_typeProperties_userName": {
+			"value": "@{linkedService().paruser}"
+		},
+		"ls_ar_sftp_ncdt_2_properties_typeProperties_host": {
+			"value": "@{linkedService().parhost}"
+		},
+		"ls_ar_sftp_ncdt_2_properties_typeProperties_userName": {
+			"value": "@{linkedService().paruser}"
+		},
+		"ls_op_adls2_lake_datascience_properties_typeProperties_url": {
+			"value": "https://nmexpporigdsdh79sta.dfs.core.windows.net/"
+		},
+		"ls_op_adls2_lake_extdata_properties_typeProperties_url": {
+			"value": "https://nmexppextdatadh607sta.dfs.core.windows.net/"
+		},
+		"ls_op_adls2_lake_latam_properties_typeProperties_endpoint": {
+			"value": "ls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latam"
+		},
+		"ls_op_adls2_lake_latam_properties_typeProperties_accessKeyId": {
+			"value": "ls_op_adls2_lake_latamls_op_adls2_lake_latamls_op_adls2_lake_latam"
+		},
+		"ls_op_adls2_lake_origenesmx_properties_typeProperties_url": {
+			"value": "https://nmexdvorigmxdhusw2sta.dfs.core.windows.net/"
+		},
+		"nmex_service_api_rest_properties_typeProperties_url": {
+			"value": "@{linkedService().url_base}"
+		},
+		"tg_alice_copy_bl_to_bl_atp_files_properties_pl_copy_blob_to_blob_atp_files_parameters_par_Folder": {
+			"value": "logica-app/atp"
+		},
+		"tg_alice_copy_bl_to_bl_atp_files_properties_pl_copy_blob_to_blob_atp_files_parameters_par_Archivo_Nombre": {
+			"value": "GATP*"
+		},
+		"tg_alice_copy_bl_to_bl_atp_files_properties_pl_copy_blob_to_blob_atp_files_parameters_par_Destination_Folder": {
+			"value": "inbound/fact/mail/atp/atp_files"
+		},
+		"tg_alice_tb_mx_sc_ageing_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_ageing_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "ageing"
+		},
+		"tg_alice_tb_mx_sc_ageing_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_ageing_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_ageing_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "AGEING*"
+		},
+		"tg_alice_tb_mx_sc_atp_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_atp_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "atp"
+		},
+		"tg_alice_tb_mx_sc_atp_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/fact/mail/atp/atp_files/"
+		},
+		"tg_alice_tb_mx_sc_atp_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/fact/mail/atp/atp_files/"
+		},
+		"tg_alice_tb_mx_sc_atp_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "GATP*"
+		},
+		"tg_alice_tb_mx_sc_lt23_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_lt23_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "lt23"
+		},
+		"tg_alice_tb_mx_sc_lt23_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_lt23_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_lt23_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "LT23*"
+		},
+		"tg_alice_tb_mx_sc_lx03_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_lx03_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "lx03"
+		},
+		"tg_alice_tb_mx_sc_lx03_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_lx03_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_lx03_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "LX03*"
+		},
+		"tg_alice_tb_mx_sc_mb5t_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_mb5t_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "mb5t"
+		},
+		"tg_alice_tb_mx_sc_mb5t_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_mb5t_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_mb5t_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "MB5T*"
+		},
+		"tg_alice_tb_mx_sc_me2n_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_me2n_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "me2n"
+		},
+		"tg_alice_tb_mx_sc_me2n_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_me2n_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_me2n_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "ME2N*"
+		},
+		"tg_alice_tb_mx_sc_me80fn_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_me80fn_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "me80fn"
+		},
+		"tg_alice_tb_mx_sc_me80fn_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_me80fn_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_me80fn_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "ME80FN*"
+		},
+		"tg_alice_tb_mx_sc_otr_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_otr_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "otr"
+		},
+		"tg_alice_tb_mx_sc_otr_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_otr_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_otr_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "OTR_20*"
+		},
+		"tg_alice_tb_mx_sc_otr_contabilizado_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_otr_contabilizado_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "contabilizado"
+		},
+		"tg_alice_tb_mx_sc_otr_contabilizado_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_otr_contabilizado_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_otr_contabilizado_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "OTR_Contabilizado*"
+		},
+		"tg_alice_tb_mx_sc_trm_log_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_trm_log_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "trm_log"
+		},
+		"tg_alice_tb_mx_sc_trm_log_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_trm_log_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_trm_log_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "TRM LOG*"
+		},
+		"tg_alice_tb_mx_sc_vl06f_con_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_vl06f_con_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "vl06f_con"
+		},
+		"tg_alice_tb_mx_sc_vl06f_con_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_vl06f_con_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_vl06f_con_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "VL06F_CON*"
+		},
+		"tg_alice_tb_mx_sc_vl06f_nac_properties_pl_master_extract_tables_alice_parameters_m_parContainer": {
+			"value": "dev"
+		},
+		"tg_alice_tb_mx_sc_vl06f_nac_properties_pl_master_extract_tables_alice_parameters_m_parFileNameTitle": {
+			"value": "vl06f_nac"
+		},
+		"tg_alice_tb_mx_sc_vl06f_nac_properties_pl_master_extract_tables_alice_parameters_m_parPathDestination": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_vl06f_nac_properties_pl_master_extract_tables_alice_parameters_m_parPathCopy": {
+			"value": "inbound/alice/"
+		},
+		"tg_alice_tb_mx_sc_vl06f_nac_properties_pl_master_extract_tables_alice_parameters_m_parFileNameCopy": {
+			"value": "VL06F_NAC*"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_search_type": {
+			"value": "FECHA_CREACION"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url": {
+			"value": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_folder": {
+			"value": "/inbound/ext_api_files/"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url_base": {
+			"value": "https://www.rcontrol.com.mx/japi/"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_cont": {
+			"value": "dev"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_status": {
+			"value": "SI1, SI2,SI3,SI4,SI5,SI6,Si7,SI8"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_function": {
+			"value": "get_shipment_info_inb"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_tabla": {
+			"value": "INBOUND_LIVE"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_search_type": {
+			"value": "FECHA_EN_PLAN"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url": {
+			"value": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_folder": {
+			"value": "/inbound/ext_api_files/"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url_base": {
+			"value": "https://www.rcontrol.com.mx/japi/"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_cont": {
+			"value": "dev"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_status": {
+			"value": "S01,S02,S03,S04,S05,S06"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_function": {
+			"value": "get_shipment_info_outb"
+		},
+		"tg_mx_sc_tb_mx_sc_alice_api_live_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_tabla": {
+			"value": "OUTBOUND_LIVE"
+		},
+		"tg_sales_powerbi_refresh_properties_pl_sales_refresh_power_bi_parameters_par_blob_filename": {
+			"value": "@triggerBody().fileName"
+		},
+		"tg_sales_powerbi_refresh_properties_pl_sales_refresh_power_bi_parameters_par_blob_path": {
+			"value": "@triggerBody().folderPath"
+		},
+		"tg_sales_powerbi_refresh_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_search_type": {
+			"value": "FIN_DESCARGA"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url": {
+			"value": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_folder": {
+			"value": "/inbound/ext_api_files/"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url_base": {
+			"value": "https://www.rcontrol.com.mx/japi/"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_cont": {
+			"value": "dev"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_status": {
+			"value": "SI9"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_function": {
+			"value": "get_shipment_info_inb"
+		},
+		"tg_tb_mx_sc_alice_api_historical_inbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_tabla": {
+			"value": "INBOUND_HISTORICO"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_search_type": {
+			"value": "DESPACHO_REAL"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url": {
+			"value": "https://www.rcontrol.com.mx/rcSuite/GetUserToken?arg00=Origenes02&arg01=Temporal1"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_folder": {
+			"value": "/inbound/ext_api_files/"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_url_base": {
+			"value": "https://www.rcontrol.com.mx/japi/"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_cont": {
+			"value": "dev"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_function": {
+			"value": "get_shipment_info_outb"
+		},
+		"tg_tb_mx_sc_alice_api_historical_outbound_properties_pl_extract_api_tablas_inb_outb_parameters_par_tabla": {
+			"value": "OUTBOUND_HISTORICO"
+		},
+		"tr_amsmx_load_sales_properties_pl_load_sales_parameters_par_blob_path": {
+			"value": "@triggerBody().folderPath"
+		},
+		"tr_amsmx_load_sales_properties_pl_load_sales_parameters_par_blob_filename": {
+			"value": "@triggerBody().fileName"
+		},
+		"tr_amsmx_load_sales_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_amsmx_sales_nieto_properties_pl_common_generic_api_parameters_par_retailer": {
+			"value": "nieto"
+		},
+		"tr_catalogo_geografico_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_connection_catalog_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_dispersiones_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_ecomm_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_kf_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_mash_cat_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_mash_marca_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"tr_palantir_SellIn_properties_pl_datasets_parameters_Area": {
+			"value": "SellIn"
+		},
+		"tr_palantir_SellOut_properties_pl_datasets_parameters_Area": {
+			"value": "SellOut"
+		},
+		"tr_palantir_Sindicadas_properties_pl_datasets_parameters_Area": {
+			"value": "Sindicadas"
+		},
+		"tr_palantir_catalogs_properties_pl_datasets_parameters_Area": {
+			"value": "Catalogs"
+		},
+		"tr_palantir_nesmovil_properties_pl_datasets_parameters_Area": {
+			"value": "Nesmovil"
+		},
+		"tr_sabana_alcances_properties_typeProperties_scope": {
+			"value": "/subscriptions/a6c9f13d-be73-4227-b485-c7a16289be08/resourceGroups/nmex-pp-origenesmx-dh-usea-rgp/providers/Microsoft.Storage/storageAccounts/nmexpporigdsdh79sta"
+		},
+		"nmex-origmx-dh-usw2-ithub-shared-ir_properties_typeProperties_linkedInfo_resourceId": {
+			"value": "/subscriptions/65538c2c-2fb6-4d89-8819-b3a38f8c63e2/resourcegroups/nams-pp-bsimaster-adi-usea-rgp/providers/Microsoft.DataFactory/factories/nams-pp-bsimaster-adi-usea-adf/integrationruntimes/nams-pp-bsimgd-shared-usea-ir"
+		}
+	}
+}
